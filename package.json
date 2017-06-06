@@ -6,6 +6,10 @@
   "jsnext:main": "lib/es6/index.js",
   "author": "Paul Taylor <paul.e.taylor@me.com>",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:graphistry/rxjs-mapd.git"
+  },
   "scripts": {
     "demo": "node ./examples/index.js",
     "test": "jest",
@@ -41,7 +45,8 @@
   "files": [
     "src",
     "lib",
-    "tsconfig"
+    "tsconfig",
+    "README.md"
   ],
   "dependencies": {
     "flatbuffers": "^1.6.0",

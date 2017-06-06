@@ -3,8 +3,10 @@
 A thin Observable wrapper for connecting to mapd-core. Interact with query results in host or device memory as Arrow columns.
 
 ### install:
-
 `npm install rxjs-mapd`
+
+### collaborate:
+`git clone git@github.com:graphistry/rxjs-mapd.git`
 
 ### notes:
 - only meant for node
@@ -20,7 +22,7 @@ A thin Observable wrapper for connecting to mapd-core. Interact with query resul
 1. submit PRs to Apache's Thrift compiler for smaller files, better typings, and option to omit Q
 1. finish writing LINQ in JS and fold this into that, so we can [JIT to LLIR](https://github.com/cucapra/node-llvmc) and run LINQ on GPUs
 
-#### usage:
+### usage:
 code from `examples/index.js`:
 ```javascript
 /**
