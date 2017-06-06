@@ -1,0 +1,84 @@
+{
+  "name": "rxjs-mapd",
+  "version": "1.0.0",
+  "description": "reactive node bindings to mapd-core via rxjs",
+  "main": "lib/cjs/index.js",
+  "jsnext:main": "lib/es6/index.js",
+  "author": "Paul Taylor <paul.e.taylor@me.com>",
+  "license": "Apache-2.0",
+  "scripts": {
+    "demo": "node ./examples/index.js",
+    "test": "jest",
+    "start": "npm-run-all clean lint build demo",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --env jest-environment-node-debug",
+    "build": "npm-run-all build:cjs build:esm build:es6 build:esnext",
+    "clean": "npm-run-all clean:cjs clean:esm clean:es6 clean:esnext",
+    "build:cjs": "npm-run-all clean:cjs copy:src:cjs compile:cjs",
+    "build:esm": "npm-run-all clean:esm copy:src:esm compile:esm",
+    "build:es6": "npm-run-all clean:es6 copy:src:es6 compile:es6",
+    "build:esnext": "npm-run-all clean:esnext copy:src:esnext compile:esnext",
+    "clean:cjs": "shx rm -rf ./lib/cjs",
+    "clean:esm": "shx rm -rf ./lib/esm",
+    "clean:es6": "shx rm -rf ./lib/es6",
+    "clean:esnext": "shx rm -rf ./lib/esnext",
+    "compile:cjs": "tsc -p ./tsconfig/tsconfig.cjs.json",
+    "compile:esm": "tsc -p ./tsconfig/tsconfig.esm.json",
+    "compile:es6": "tsc -p ./tsconfig/tsconfig.es6.json",
+    "compile:esnext": "tsc -p ./tsconfig/tsconfig.esnext.json",
+    "copy:src:cjs": "mkdirp ./lib/cjs/src && shx cp -r ./src/* ./lib/cjs/src",
+    "copy:src:esm": "mkdirp ./lib/esm/src && shx cp -r ./src/* ./lib/esm/src",
+    "copy:src:es6": "mkdirp ./lib/es6/src && shx cp -r ./src/* ./lib/es6/src",
+    "copy:src:esnext": "mkdirp ./lib/esnext/src && shx cp -r ./src/* ./lib/esnext/src",
+    "lint": "tslint --fix --type-check --project ./tsconfig/tslint.tsconfig.json  --config ./tsconfig/tslint.json \"src/index.ts\""
+  },
+  "keywords": [
+    "mapd-core",
+    "thrift",
+    "rxjs"
+  ],
+  "files": [
+    "src",
+    "lib",
+    "tsconfig"
+  ],
+  "dependencies": {
+    "flatbuffers": "^1.6.0",
+    "rxjs": "~5.4.0",
+    "shm-typed-array": "0.0.10",
+    "symbol-observable": "^1.0.4",
+    "text-encoding": "^0.6.4",
+    "thrift": "^0.10.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^19.2.3",
+    "@types/node": "^7.0.22",
+    "jest": "^20.0.3",
+    "jest-environment-node-debug": "^2.0.0",
+    "mkdirp": "^0.5.1",
+    "npm-run-all": "^4.0.2",
+    "shx": "^0.2.2",
+    "ts-jest": "^20.0.4",
+    "tslib": "^1.7.1",
+    "tslint": "^5.3.2",
+    "typescript": "^2.3.3",
+    "typings": "^2.1.1"
+  },
+  "typings": "./lib/cjs/index.d.ts",
+  "jest": {
+    "verbose": true,
+    "roots": [
+      "<rootDir>/src/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*(-|\\.)(test|spec)s?)\\.(ts|tsx|js)$"
+  }
+}
