@@ -1,6 +1,6 @@
 {
   "name": "rxjs-mapd",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "reactive node bindings to mapd-core via rxjs",
   "main": "lib/cjs/index.js",
   "jsnext:main": "lib/es6/index.js",
