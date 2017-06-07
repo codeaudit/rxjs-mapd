@@ -19,6 +19,8 @@
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand --env jest-environment-node-debug",
     "build": "npm-run-all build:cjs build:esm build:es6 build:esnext",
     "clean": "npm-run-all clean:cjs clean:esm clean:es6 clean:esnext",
+    "commit": "git-cz",
+    "commitmsg": "validate-commit-msg",
     "build:cjs": "npm-run-all clean:cjs copy:src:cjs compile:cjs",
     "build:esm": "npm-run-all clean:esm copy:src:esm compile:esm",
     "build:es6": "npm-run-all clean:es6 copy:src:es6 compile:es6",
@@ -59,6 +61,8 @@
   "devDependencies": {
     "@types/jest": "^19.2.3",
     "@types/node": "^7.0.22",
+    "commitizen": "^2.9.6",
+    "cz-conventional-changelog": "^2.0.0",
     "jest": "^20.0.3",
     "jest-environment-node-debug": "^2.0.0",
     "mkdirp": "^0.5.1",
@@ -68,9 +72,15 @@
     "tslib": "^1.7.1",
     "tslint": "^5.3.2",
     "typescript": "^2.3.3",
-    "typings": "^2.1.1"
+    "typings": "^2.1.1",
+    "validate-commit-msg": "^2.12.1"
   },
   "typings": "./lib/cjs/index.d.ts",
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
   "jest": {
     "verbose": true,
     "roots": [
