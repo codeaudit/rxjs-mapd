@@ -31,14 +31,15 @@ export function bindGPUMethods(this: typeof Client, statics: ClientStatics) {
 export function bindClientMethods(this: typeof Client, statics: ClientStatics) {
     function bindConnectMethod(method) {
         return function boundStaticFn<T>(this: typeof Client, ...args: any[]) {
-            return this.usingConnection<T>(this.bindNodeCallback<T>(method).bind(this.mapd, ...args));
+            return this.usingConnection<T>(
+                this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, ...args));
         };
     }
-    function bindSessionMethod(method, name) {
+    function bindSessionMethod(method) {
         return function boundStaticFn<T>(this: typeof Client, ...args: any[]) {
             return this.usingConnection<T>(!this.session
-                 ? this.bindNodeCallback<T>(method).bind(this.mapd, ...args)
-                 : this.bindNodeCallback<T>(method).bind(this.mapd, this.session, ...args)
+                 ? this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, ...args)
+                 : this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, this.session, ...args)
             );
         };
     }
@@ -47,7 +48,7 @@ export function bindClientMethods(this: typeof Client, statics: ClientStatics) {
             (ctor[`mapd_${toCamelCase(prop)}`] = bindConnectMethod(ctor.mapd[prop])) && ctor || ctor
         ),
         clientSessionMethods().reduce((ctor, prop) => (
-            (ctor[`mapd_${toCamelCase(prop)}`] = bindSessionMethod(ctor.mapd[prop], prop)) && ctor || ctor
+            (ctor[`mapd_${toCamelCase(prop)}`] = bindSessionMethod(ctor.mapd[prop])) && ctor || ctor
         ),
         this.bindStatics(statics)
     )));
@@ -80,6 +81,48 @@ export function bindObservableMethods(ObsCtor: typeof Observable, ClientCtor: ty
     ClientCtor.bindNodeCallback = bindStaticFactoryFn('bindNodeCallback');
     return ClientCtor;
 }
+
+// If a Thrift method's arguments are malformed, the Thrift transport (TBufferedTransport, etc.) will
+// throw a helpful error. Unfortunately, it doesn't flush its internal buffer or dereference the node
+// callback. The former means the next RPC will almost certainly fail, and the latter is a memory leak.
+// This function catches any error thrown from an RPC and does the necessary cleanup work.
+// 
+// implementation note: This function is written to accept the Thrift client as the `this` binding, the
+// client method as the first argument, and the method's arguments as rest params. This is to avoid creating
+// a new instance of this function for each client method, which should make it easier for VMs to optimize.
+function resetThriftClientOnArgumentError(this: any /* <- the Thrift Client */, method, ...args) {
+    try {
+        method.apply(this, args);
+    } catch (e) {
+        // `this.output` is the Thrift transport instance
+        this.output.outCount = 0;
+        this.output.outBuffers = [];
+        this.output._seqid = null;
+        // dereference the callback
+        this._reqs[this._seqid] = null;
+        throw e; // re-throw the error to Rx
+    }
+}
+
+////
+// I'd like to have fine-grained error handling on a per-RPC level, but Thrift dispatches errors caused
+// by individual RPC's on the shared connection emitter without any info about which RPC raised the error.
+// Since we don't want to bring down the entire client connection for a single RPC error, we ignore any
+// TProtocolException or TApplicationExceptions, and the individual RPC will be left hanging. If this
+// happens a lot in practice, we should move to sane default timeouts for all RPC calls :<
+//
+// function tProtocolErrors(ctor: typeof Client) {
+//     return ctor.fromEvent(this.connection, 'error')
+//         .filter((e) => e instanceof Thrift.TProtocolException)
+//         .flatMap((e) => this.throw(e));
+// }
+// 
+// function tApplicationErrors(ctor: typeof Client) {
+//     return ctor.fromEvent(this.connection, 'error')
+//         .filter((e) => e instanceof Thrift.TApplicationException)
+//         .flatMap((e) => this.throw(e));
+// }
+////
 
 function toCamelCase(text) {
     return text.replace(/_(\w)/g, upperCaseFirstLetter);
