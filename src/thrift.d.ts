@@ -85,14 +85,17 @@ declare module 'thrift' {
             getMessage(): string;
         }
 
+        class TProtocolException implements Error {
+            type: any;
+            name: string;
+            message: string;
+            constructor(type: any, message: any);
+        }
+
         class TApplicationException extends TException {
             constructor(type: any, message: any);
             read(input: any): void;
             write(output: any): void;
-        }
-
-        class TProtocolException extends TException {
-            constructor(type: any, message: any);
         }
     }
 
