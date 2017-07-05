@@ -19,6 +19,10 @@ declare module 'thrift' {
     type TProtocol = TBinaryProtocol | TCompactProtocol | TJSONProtocol;
     type TConnection = Connection | HttpConnection | WSConnection | XHRConnection;
 
+    interface TProtocolConstructor {
+        new(transport: TTransport): TProtocol;
+    }
+
     namespace Thrift {
 
         function objectLength(obj: any): number;
@@ -188,6 +192,9 @@ declare module 'thrift' {
     }
 
     class TBufferedTransport {
+        public _seqid: number;
+        public outCount: number;
+        public outBuffers: any[];
         constructor(buffer: any, callback: any);
         borrow(): any;
         close(): void;
@@ -205,7 +212,7 @@ declare module 'thrift' {
         readString(len: any): any;
         rollbackPosition(): void;
         setCurrSeqId(seqid: any): void;
-        write(buf: any): void;
+        write(buf: any, encoding: any): void;
         static receiver(callback: any, seqid: any): any;
     }
 
@@ -293,6 +300,9 @@ declare module 'thrift' {
     }
 
     class TFramedTransport {
+        public _seqid: number;
+        public outCount: number;
+        public outBuffers: any[];
         constructor(buffer: any, callback: any);
         borrow(): any;
         close(): void;

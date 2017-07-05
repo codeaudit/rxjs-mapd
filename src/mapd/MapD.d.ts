@@ -3,18 +3,23 @@
 //
 // DO NOT EDIT UNLESS YOU ARE SURE THAT YOU KNOW WHAT YOU ARE DOING
 //
-// Edited 05/23/2017 to remove non-callback definitions - paul
-//
-import { TTransport, TProtocol } from 'thrift';
+
+import { TTransport, TProtocol, TProtocolConstructor } from 'thrift';
 import {
-    TRow, TPixel, TDBInfo, TStringRow, TTableType, TCopyParams, TStepResult, TColumnType, TInsertData, TQueryResult,
-    TPixelResult, TExecuteMode, TPendingQuery, TGpuDataFrame, TRenderResult, TFrontendView, TDetectResult, TImportStatus,
+    TRow, TPixel, TDBInfo, TStringRow, TDeviceType, TTableType, TCopyParams, TStepResult, TColumnType, TInsertData, TQueryResult,
+    TPixelResult, TExecuteMode, TPendingQuery, TDataFrame, TRenderResult, TFrontendView, TDetectResult, TImportStatus,
     TServerStatus, TTableDetails, TMemorySummary, TPixelRowResult, TRawPixelDataResult, TPixelTableRowResult,
 } from './mapd_types';
 
 declare module './MapD' {
     type TNodeCallback<T> = (err: any, result?: T) => void;
     class Client {
+
+        public _seqid: number;
+        public output: TTransport;
+        public pClass: TProtocolConstructor;
+        public _reqs: { [k: number]: TNodeCallback<any> };
+
         seqid(): number;
         new_seqid(): number;
 
@@ -32,12 +37,14 @@ declare module './MapD' {
         stop_heap_profile(session: string, callback: TNodeCallback<void>): void;
         get_heap_profile(session: string, callback: TNodeCallback<string>): void;
         get_memory_gpu(session: string, callback: TNodeCallback<string>): void;
+        get_memory_cpu(session: string, callback: TNodeCallback<string>): void;
         get_memory_summary(session: string, callback: TNodeCallback<TMemorySummary>): void;
         clear_cpu_memory(session: string, callback: TNodeCallback<void>): void;
         clear_gpu_memory(session: string, callback: TNodeCallback<void>): void;
         sql_execute(session: string, query: string, column_format: boolean, nonce: string, first_n: number, callback: TNodeCallback<TQueryResult>): void;
-        sql_execute_df(session: string, query: string, first_n: number, callback: TNodeCallback<TGpuDataFrame>): void;
-        sql_execute_gpudf(session: string, query: string, device_id: number, first_n: number, callback: TNodeCallback<TGpuDataFrame>): void;
+        sql_execute_df(session: string, query: string, device_type: TDeviceType, device_id: number, first_n: number, callback: TNodeCallback<TDataFrame>): void;
+        // Same as `sql_execute_df` with TDeviceType.GPU
+        // sql_execute_gdf(session: string, query: string, device_id: number, first_n: number, callback: TNodeCallback<TDataFrame>): void;
         interrupt(session: string, callback: TNodeCallback<void>): void;
         sql_validate(session: string, query: string, callback: TNodeCallback<{ [k: string]: TColumnType; }>): void;
         set_execution_mode(session: string, mode: TExecuteMode, callback: TNodeCallback<void>): void;
@@ -61,10 +68,11 @@ declare module './MapD' {
         broadcast_serialized_rows(serialized_rows: string, row_desc: TColumnType[], query_id: number, callback: TNodeCallback<void>): void;
         render_vega_raw_pixels(session: string, widget_id: number, node_idx: number, vega_json: string, callback: TNodeCallback<TRawPixelDataResult>): void;
         insert_data(session: string, insert_data: TInsertData, callback: TNodeCallback<void>): void;
-        get_table_descriptor(session: string, table_name: string, callback: TNodeCallback<{ [k: string]: TColumnType; }>): void;
-        get_row_descriptor(session: string, table_name: string, callback: TNodeCallback<TColumnType[]>): void;
-        render(session: string, query: string, render_type: string, nonce: string, callback: TNodeCallback<TRenderResult>): void;
-        get_rows_for_pixels(session: string, widget_id: number, pixels: TPixel[], table_name: string, col_names: string[], column_format: boolean, nonce: string, callback: TNodeCallback<TPixelResult>): void;
-        get_row_for_pixel(session: string, widget_id: number, pixel: TPixel, table_name: string, col_names: string[], column_format: boolean, pixelRadius: number, nonce: string, callback: TNodeCallback<TPixelRowResult>): void;
+        // DEPRECATED, DON'T INCLUDE
+        // get_table_descriptor(session: string, table_name: string, callback: TNodeCallback<{ [k: string]: TColumnType; }>): void;
+        // get_row_descriptor(session: string, table_name: string, callback: TNodeCallback<TColumnType[]>): void;
+        // render(session: string, query: string, render_type: string, nonce: string, callback: TNodeCallback<TRenderResult>): void;
+        // get_rows_for_pixels(session: string, widget_id: number, pixels: TPixel[], table_name: string, col_names: string[], column_format: boolean, nonce: string, callback: TNodeCallback<TPixelResult>): void;
+        // get_row_for_pixel(session: string, widget_id: number, pixel: TPixel, table_name: string, col_names: string[], column_format: boolean, pixelRadius: number, nonce: string, callback: TNodeCallback<TPixelRowResult>): void;
     }
 }
