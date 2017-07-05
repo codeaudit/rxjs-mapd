@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { RefCounted } from '../open';
+import { RefCounted } from './open';
 import { Client as MapD } from '../mapd';
 import $$observable from 'symbol-observable';
 import { ArrowReader } from '../apache/arrow';
@@ -7,15 +7,18 @@ import { bindObservableMethods } from './bind';
 
 export type ClientStatics = {
     mapd?: MapD;
-    session?: string;
+    gpus?: number;
+    nonce?: number;
+    sessionId?: string;
     connection?: RefCounted;
-    toArrow?: (buf: any) => ArrowReader;
 };
 
 export class Client<T> extends Observable<T> {
 
+    static gpus = 0;
+    static nonce = 0;
     static mapd: MapD;
-    static session: string;
+    static sessionId: string;
     static connection: RefCounted;
 
     static let<T>(func: (ctor: typeof Client) => T) {

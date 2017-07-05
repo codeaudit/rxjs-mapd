@@ -1,46 +1,34 @@
+import { Thrift } from 'thrift';
 import { Observable } from 'rxjs';
-import { getReader } from '../apache/arrow';
+import { Client as MapD } from '../mapd';
 import { Client, ClientStatics } from './client';
-import { queryCPUDFStatic, queryGPUDFStatic } from './query';
 
-export function bindStatics(this: typeof Client, statics: ClientStatics) {
-    class BoundClient<T> extends this<T> {
+export function bindStatics(this: typeof Client, statics: ClientStatics, ClientCtor?: typeof Client) {
+    const BoundClient = ClientCtor || class BoundClient<T> extends this<T> {
         lift<R = T>(operator): BoundClient<R> {
             const observable = new BoundClient<R>(this);
             observable.operator = operator;
             return observable;
         }
-    }
+    };
     return bindObservableMethods(Observable, Object.keys(statics).reduce((ctor, prop) => (
         (ctor[prop] = statics[prop]) && ctor || ctor
     ), BoundClient));
-}
-
-export function bindCPUMethods(this: typeof Client, statics: ClientStatics) {
-    return this.bindStatics({
-        query: queryCPUDFStatic, toArrow: getReader, ...statics
-    });
-}
-
-export function bindGPUMethods(this: typeof Client, statics: ClientStatics) {
-    return this.bindStatics({
-        query: queryGPUDFStatic, toArrow: getReader, ...statics
-    });
 }
 
 export function bindClientMethods(this: typeof Client, statics: ClientStatics) {
     function bindConnectMethod(method) {
         return function boundStaticFn<T>(this: typeof Client, ...args: any[]) {
             return this.usingConnection<T>(
-                this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, ...args));
+                this.bindNodeCallback<T>(callThriftSafe).bind(this.mapd, method, ...args)
+            ).takeUntil(thriftConnectionErrorOrClose(this));
         };
     }
     function bindSessionMethod(method) {
         return function boundStaticFn<T>(this: typeof Client, ...args: any[]) {
-            return this.usingConnection<T>(!this.session
-                 ? this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, ...args)
-                 : this.bindNodeCallback<T>(resetThriftClientOnArgumentError).bind(this.mapd, method, this.session, ...args)
-            );
+            return this.usingConnection<T>(
+                 this.bindNodeCallback<T>(lateBindSession).bind(this, method, ...args)
+            ).takeUntil(thriftConnectionErrorOrClose(this));
         };
     }
     return (
@@ -82,6 +70,12 @@ export function bindObservableMethods(ObsCtor: typeof Observable, ClientCtor: ty
     return ClientCtor;
 }
 
+function lateBindSession(this: typeof Client, method, ...args) {
+    return args.length >= method.length
+        ? callThriftSafe.apply(this.mapd, [method, ...args])
+        : callThriftSafe.apply(this.mapd, [method, this.sessionId, ...args]);
+}
+
 // If a Thrift method's arguments are malformed, the Thrift transport (TBufferedTransport, etc.) will
 // throw a helpful error. Unfortunately, it doesn't flush its internal buffer or dereference the node
 // callback. The former means the next RPC will almost certainly fail, and the latter is a memory leak.
@@ -90,18 +84,32 @@ export function bindObservableMethods(ObsCtor: typeof Observable, ClientCtor: ty
 // implementation note: This function is written to accept the Thrift client as the `this` binding, the
 // client method as the first argument, and the method's arguments as rest params. This is to avoid creating
 // a new instance of this function for each client method, which should make it easier for VMs to optimize.
-function resetThriftClientOnArgumentError(this: any /* <- the Thrift Client */, method, ...args) {
+function callThriftSafe(this: MapD, method, ...args) {
     try {
         method.apply(this, args);
     } catch (e) {
-        // `this.output` is the Thrift transport instance
+        // `this.output` is the Thrift TTransport instance (TBufferedTransport, etc.)
         this.output.outCount = 0;
         this.output.outBuffers = [];
+        // reset the sequence ID
         this.output._seqid = null;
         // dereference the callback
         this._reqs[this._seqid] = null;
         throw e; // re-throw the error to Rx
     }
+}
+
+function thriftConnectionErrorOrClose(ctor: typeof Client) {
+    return ctor.race(
+        ctor.fromEvent(ctor.connection, 'close'),
+        ctor.fromEvent(ctor.connection, 'error')
+            // omit Thrift's TException and TProtocolException errors from the
+            // ConnectionError typeclass, since they can be caused by any RPC
+            // and shouldn't necessarily bring down the entire Client connection
+            .filter((e) => !(e instanceof Thrift.TException))
+            .filter((e) => !(e instanceof Thrift.TProtocolException))
+            .flatMap((e) => ctor.throw(e))
+    );
 }
 
 ////
@@ -153,12 +161,14 @@ function clientSessionMethods() {
         'stop_heap_profile',
         'get_heap_profile',
         'get_memory_gpu',
+        'get_memory_cpu',
         'get_memory_summary',
         'clear_cpu_memory',
         'clear_gpu_memory',
         'sql_execute',
         'sql_execute_df',
-        'sql_execute_gpudf',
+        // Same as `sql_execute_df` with TDeviceType.GPU
+        // 'sql_execute_gdf',
         'interrupt',
         'sql_validate',
         'set_execution_mode',
@@ -180,10 +190,11 @@ function clientSessionMethods() {
         'start_query',
         'render_vega_raw_pixels',
         'insert_data',
-        'get_table_descriptor',
-        'get_row_descriptor',
-        'render',
-        'get_rows_for_pixels',
-        'get_row_for_pixel'
+        // DEPRECATED, DON'T INCLUDE
+        // 'get_table_descriptor',
+        // 'get_row_descriptor',
+        // 'render',
+        // 'get_rows_for_pixels',
+        // 'get_row_for_pixel',
     ];
 }

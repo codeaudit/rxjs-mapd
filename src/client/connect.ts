@@ -1,6 +1,7 @@
+import { Thrift } from 'thrift';
 import { Client } from './client';
 import { TimeoutError } from 'rxjs';
-import { Client as MapD, TMemorySummary, TMapDException } from '../mapd';
+import { Client as MapD, TMemorySummary } from '../mapd';
 
 export type connectParams = {
     dbName: string;
@@ -12,22 +13,22 @@ export type connectParams = {
 export function connectProto(this: Client<typeof Client>, opts: connectParams): Client<typeof Client>;
 export function connectProto(this: Client<typeof Client>, username: string, password: string, dbName: string, timeout?: number): Client<typeof Client>;
 export function connectProto(this: Client<typeof Client>, ...args: any[]): Client<typeof Client> {
-    return this.flatMap((ctor) => (<any> ctor).connect(...args)) as Client<typeof Client>;
+    return this.flatMap((ctor) => ctor.connect.apply(ctor, args)) as Client<typeof Client>;
 }
 
 export function connectStatic(this: typeof Client, opts: connectParams): Client<typeof Client>;
-export function connectStatic(this: typeof Client, username: string, password: string, dbName: string, timeout?: number): Client<typeof Client>;
+export function connectStatic(this: typeof Client, dbName: string, username: string, password: string, timeout?: number): Client<typeof Client>;
 export function connectStatic(this: typeof Client, ...args: any[]): Client<typeof Client> {
 
-    let [username, password, dbName, timeout = 0] = args;
+    let [dbName, username, password, timeout = 0] = args;
 
-    switch (typeof username) {
+    switch (typeof dbName) {
         case 'string': break;
         case 'object':
-            dbName = username.dbName;
-            timeout = +username.timeout;
-            password = username.password;
-            username = username.username;
+            username = dbName.username;
+            password = dbName.password;
+            timeout = +dbName.timeout;
+            dbName = dbName.dbName;
             break;
     }
 
@@ -43,20 +44,14 @@ export function connectStatic(this: typeof Client, ...args: any[]): Client<typeo
         .flatMap(clientForExecutionMode.bind(this)) as Client<typeof Client>;
 }
 
-export { connectProto as _proto, connectStatic as _static };
-
-function clientForExecutionMode(this: typeof Client, session: string) {
+function clientForExecutionMode(this: typeof Client, sessionId: string) {
     return this
-        .mapd_getMemorySummary(session)
-        .map(memorySummaryHasGPUEntries)
-        .catch(this.of.bind(this, false)) // if err, not GPU enabled
-        .map((GPUEnabled) => GPUEnabled
-            ? this.bindGPUMethods({ session })
-            : this.bindCPUMethods({ session })
-        )
+        .mapd_getMemorySummary(sessionId)
+        .map(availableGPUsCount).catch(() => this.of(0)) // if err, not GPU enabled
+        .map((gpus) => this.bindStatics({ gpus, sessionId }))
         .take(1);
 }
 
-function memorySummaryHasGPUEntries({ gpu_summary }: TMemorySummary) {
-    return gpu_summary && gpu_summary.length > 0;
+function availableGPUsCount({ gpu_summary }: TMemorySummary) {
+    return gpu_summary && gpu_summary.length || 0;
 }

@@ -1,33 +1,52 @@
-import { Client } from '../client';
-import { TGpuDataFrame } from '../mapd';
-import { get as shmat } from 'shm-typed-array';
-import { getReader, ArrowReader } from '../apache/arrow';
+import { Observable } from 'rxjs';
+import { Client } from './client';
+import * as shm from 'shm-typed-array';
+import { TQueryResult, TDeviceType, TDataFrame } from '../mapd';
+import { ArrowReader, getReader as toArrow } from '../apache/arrow';
 
-export function queryProto(this: Client<typeof Client>, query: string, limit = -1, deviceId = 0): Client<Buffer> {
-    const ThisCtor = this.constructor as typeof Client;
-    return this.flatMap<typeof Client, Buffer>(
-        ThisCtor.query.bind(ThisCtor, query, limit)
-    ) as Client<Buffer>;
+export function queryStatic(this: typeof Client, query: string, limit = -1) {
+    return this.mapd_sqlExecute(query, true, `${this.nonce++}`, Math.max(-1, limit));
 }
 
-export function queryStatic(this: typeof Client, query: string, limit = -1, deviceId = 0): Client<Buffer> {
-    throw new Error('`query` can only be called after connecting to a database');
+export function queryDFStatic(this: typeof Client, query: string, limit = -1, deviceId = 0) {
+    const _limit = Math.max(-1, limit);
+    const _deviceId = Math.abs(deviceId % (this.gpus + 1));
+    return (this.gpus <= 0
+        ? this.mapd_sqlExecuteDf(query, TDeviceType.CPU, 0, _limit).map(sharedMemoryAttach)
+        : this.mapd_sqlExecuteDf(query, TDeviceType.GPU, _deviceId, _limit).map(cudaMemoryAttach)
+    ).map(toArrow) as Client<ArrowReader>;
 }
 
-export function queryCPUDFStatic(this: typeof Client, query: string, limit = -1) {
-    return this.mapd_sqlExecuteDf(query, Math.max(-1, limit)).map(sharedMemoryAttach);
+export function queryProto(this: Client<typeof Client>, query: string, limit = -1) {
+    return this.flatMap((client) => client.query(query, limit)) as Client<TQueryResult>;
 }
 
-export function queryGPUDFStatic(this: typeof Client, query: string, limit = -1, deviceId = 0) {
-    return this.mapd_sqlExecuteGpudf(query, deviceId, Math.max(-1, limit)).map(cudaMemoryAttach);
+export function queryDFProto(this: Client<typeof Client>, query: string, limit = -1, deviceId = 0) {
+    return this.flatMap((client) => client.queryDF(query, limit, deviceId)) as Client<ArrowReader>;
 }
 
-function sharedMemoryAttach({ df_handle }: TGpuDataFrame): Buffer {
-    return shmat(+df_handle, 'Buffer');
+function sharedMemoryAttach(df: TDataFrame): Buffer {
+    // todo: why does mapd add an extra 4 bytes to sm_size?
+    const sm_size = +df.sm_size - 4, df_size = +df.df_size;
+    const sm_handle = (<any> df.sm_handle).readUInt32LE(0);
+    const df_handle = (<any> df.df_handle).readUInt32LE(0);
+    const sm_buffer: Buffer = shm.get(sm_handle, 'Buffer');
+    const df_buffer: Buffer = shm.get(df_handle, 'Buffer');
+    // memcpy schema + batches into node. With the addition
+    // of DictionaryBatches and the upgrade to Arrow 0.4.1,
+    // mapd stopped encoding the schema into the df_buffer,
+    // and started sending them separately. Until we have a
+    // decoupled Arrow implementation that can read schemas
+    // and messages from different buffers, gotta live with
+    // this.
+    const arrow_buf = new Buffer(sm_size + df_size);
+    sm_buffer.copy(arrow_buf, 0, 0, sm_size);
+    df_buffer.copy(arrow_buf, sm_size);
+    shm.detach(sm_handle, false);
+    shm.detach(df_handle, false);
+    return arrow_buf;
 }
 
-function cudaMemoryAttach({ df_handle }: TGpuDataFrame): Buffer {
+function cudaMemoryAttach(df: TDataFrame): Buffer {
     throw new Error('todo: implement node-cuda IPC');
 }
-
-export { queryStatic as _static, queryProto as _proto };

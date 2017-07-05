@@ -12,7 +12,6 @@ A thin Observable wrapper for connecting to mapd-core. Interact with query resul
 - only meant for node
 - no GPU Arrows yet (see todos #1)
 - should work with docker (see [`docker-run --ipc`](https://docs.docker.com/engine/reference/run/#ipc-settings-ipc) for details)
-- only compatible with the [@graphistry/mapd-core#shm-ipc](https://github.com/graphistry/mapd-core/tree/shm-ipc) fork (temporary)
 
 ### todos:
 1. add IPC handlers to [`node-cuda`](https://github.com/graphistry/node-cuda) so we can use GPU Arrows
@@ -28,42 +27,54 @@ code from `examples/index.js`:
 /**
  * Assumes default mapd-core setup and flights_2008_10k test dataset
  */
-
-import open from 'rxjs-mapd';
+import Client from 'rxjs-mapd';
 const host = `localhost`, port = 9091, encrypted = false;
 const username = `mapd`, password = `HyperInteractive`, dbName = `mapd`, timeout = 5000;
+
 /**
- * establish the thrift connection to the mapd-core server and emit an rxjs-mapd Client Observable
- * open also accepts named parameters:
+ * Bind the Thrift configuration params to a static Client class.
+ * Connections established via the returned Client class will inherit
+ * the Thrift configuration arguments from this call.
+ * `open` also accepts named parameters:
  * ```
- * open({
- *     host, port, secure,
- *     protocol: `sock`, transport: `binary`
+ * Client.open({
+ *     host, port, encrypted,
+ *     protocol: `net`,
+ *     transport: `binary`
  * })
  * ```
  */
-open(host, port, encrypted)
-    /**
-     * connect the emitted Client to a mapd-core db. This is a convenience method for
-     * calling `connect` on the emitted client via flatMap, so it's identical to this:
-     * ```
-     * open(...).flatMap((client) => client.connect(username, password, dbName, timeout))
-     * ```
-     * `connect` also accepts named parameters:
-     * ```
-     * connect({ dbName, timeout, username, password })
-     * ```
-     */
-    .connect(username, password, dbName, timeout)
-    .flatMap((client) => client
-        // .query(`SELECT count(*) FROM flights_2008_10k`) // <- 1 col/1 row
-        // .query(`SELECT origin_city FROM flights_2008_10k WHERE dest_city ILIKE 'dallas'`) // <- will work when mapd-core serializes categorical results to arrows
-        .query(`SELECT origin_lat, origin_lon FROM flights_2008_10k WHERE dest_city ILIKE 'dallas'`) // 2 cols/many rows
-        .toArrow()
-        .repeat(2) // <- execute the query again -- everything's an Observable!
-        .disconnect() // <- disconnect this client session when finished
-    )
-    .subscribe(printArrowTable, (err) => console.error(err));
+const BoundClient = Client.open(host, port, encrypted);
+
+/**
+ * Create an Observable of static Client classes, where each class represents a distinct
+ * connection to the specified database. A new session is established for each subscriber
+ * to the Observable. Each session ref-counts its underlying Thrift transport,
+ * automatically opening and closing the transport on demand.
+ * `connect` also accepts named parameters:
+ * ```
+ * connect({ dbName, username, password, timeout })
+ * ```
+ */
+const mapdSessions = BoundClient.connect(dbName, username, password, timeout);
+
+mapdSessions
+    .flatMap((session) => session
+        .queryDF(`SELECT count(*) as row_count FROM flights_2008_10k`)
+        .disconnect()
+    ).subscribe(printArrowTable, (err) => console.error(err));
+
+mapdSessions
+    .flatMap((session) => session
+        .queryDF(`SELECT origin_city FROM flights_2008_10k WHERE dest_city ILIKE 'dallas' LIMIT 5`)
+        .disconnect()
+    ).subscribe(printArrowTable, (err) => console.error(err));
+
+mapdSessions
+    .flatMap((session) => session
+        .queryDF(`SELECT origin_lat, origin_lon FROM flights_2008_10k WHERE dest_city ILIKE 'dallas' LIMIT 5`)
+        .disconnect()
+    ).subscribe(printArrowTable, (err) => console.error(err));
 
 function printArrowTable(arrow, schema = arrow.getSchema()) {
     let rows, table = [
