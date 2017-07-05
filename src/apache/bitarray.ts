@@ -17,35 +17,34 @@
 
 export class BitArray {
 
+    private length: number;
     private view: Uint8Array;
 
     constructor(buffer: ArrayBuffer, offset: number, length: number) {
-        if (length <= 0) {
-            this.get = this.set = this.unset = this.yes;
-        } else {
-            this.view = new Uint8Array(buffer, offset || 0, Math.ceil(length / 8));
-        }
+        this.length = length;
+        this.view = new Uint8Array(buffer, offset || 0, Math.ceil(length / 8));
     }
 
     get(i) {
-        let index = (i >> 3) | 0; // | 0 converts to an int. Math.floor works too.
-        let bit = i % 8;  // i % 8 is just as fast as i & 7
-        return (this.view[index] & (1 << bit)) !== 0;
+        return this.length > 0 ? (
+            // | 0 converts to an int. Math.floor works too
+            this.view[(i >> 3) | 0] & (1 << (i % 8))) !== 0 :
+            true;
     }
 
     set(i) {
-        let index = (i >> 3) | 0;
-        let bit = i % 8;
-        this.view[index] |= 1 << bit;
+        if (this.length > 0) {
+            const index = (i >> 3) | 0;
+            const bit = i % 8;
+            this.view[index] |= 1 << bit;
+        }
     }
 
     unset(i) {
-        let index = (i >> 3) | 0;
-        let bit = i % 8;
-        this.view[index] &= ~(1 << bit);
-    }
-
-    yes(i) {
-        return true;
+        if (this.length > 0) {
+            const index = (i >> 3) | 0;
+            const bit = i % 8;
+            this.view[index] &= ~(1 << bit);
+        }
     }
 }

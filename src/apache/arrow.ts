@@ -301,7 +301,7 @@ function _loadDictionaryBatch(bb, batch) {
 }
 
 function _loadMessage(bb) {
-    let messageLength: number = Int32FromByteBuffer(bb, bb.position());
+    let messageLength: number = bb.readInt32(bb.position());
     if (messageLength == 0) {
       return undefined;
     }

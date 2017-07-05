@@ -25,7 +25,7 @@ import {
     FixedSizeList
 } from './lib_generated';
 
-interface ArrayView {
+export interface ArrayView {
     slice(start: number, end: number): ArrayView;
     toString(): string;
 }

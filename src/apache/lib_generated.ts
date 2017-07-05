@@ -3,3086 +3,3169 @@
 
 import { flatbuffers } from 'flatbuffers';
 
-// export namespace org.apache.arrow.flatbuf {
+/**
+ * ----------------------------------------------------------------------
+ * Arrow File metadata
+ *
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Footer {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
 
     /**
-     * ----------------------------------------------------------------------
-     * Arrow File metadata
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Footer}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Footer {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Footer=} obj
+     * @returns {Footer}
+     */
+    static getRootAsFooter(bb: flatbuffers.ByteBuffer, obj?: Footer): Footer {
+        return (obj || new Footer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.MetadataVersion}
+     */
+    version():/*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.MetadataVersion} */ (this.bb.readInt16(this.bb_pos + offset)) : /*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion.V1;
+    };
+
+    /**
+     * @param {org.apache.arrow.flatbuf.Schema=} obj
+     * @returns {org.apache.arrow.flatbuf.Schema|null}
+     */
+    schema(obj?:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Schema):/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Schema | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? (obj || new /*NS16187549871986683199.org.apache.arrow.flatbuf.*/Schema).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.Block=} obj
+     * @returns {org.apache.arrow.flatbuf.Block}
+     */
+    dictionaries(index: number, obj?:/*org.apache.arrow.flatbuf.*/Block):/*org.apache.arrow.flatbuf.*/Block | null {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Block).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    dictionariesLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.Block=} obj
+     * @returns {org.apache.arrow.flatbuf.Block}
+     */
+    recordBatches(index: number, obj?:/*org.apache.arrow.flatbuf.*/Block):/*org.apache.arrow.flatbuf.*/Block | null {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Block).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    recordBatchesLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startFooter(builder: flatbuffers.Builder) {
+        builder.startObject(4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.MetadataVersion} version
+     */
+    static addVersion(builder: flatbuffers.Builder, version:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion) {
+        builder.addFieldInt16(0, version, /*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion.V1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} schemaOffset
+     */
+    static addSchema(builder: flatbuffers.Builder, schemaOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, schemaOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} dictionariesOffset
+     */
+    static addDictionaries(builder: flatbuffers.Builder, dictionariesOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(2, dictionariesOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startDictionariesVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(24, numElems, 8);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} recordBatchesOffset
+     */
+    static addRecordBatches(builder: flatbuffers.Builder, recordBatchesOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(3, recordBatchesOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startRecordBatchesVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(24, numElems, 8);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endFooter(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} offset
+     */
+    static finishFooterBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
+        builder.finish(offset);
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Block {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Block}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Block {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * Index to the start of the RecordBlock (note this is past the Message header)
      *
+     * @returns {flatbuffers.Long}
+     */
+    offset(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos);
+    };
+
+    /**
+     * Length of the metadata
      *
-     * @constructor
+     * @returns {number}
      */
-
-    export class Footer {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Footer}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Footer {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Footer=} obj
-         * @returns {Footer}
-         */
-        static getRootAsFooter(bb: flatbuffers.ByteBuffer, obj?: Footer): Footer {
-            return (obj || new Footer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.MetadataVersion}
-         */
-        version(): /*org.apache.arrow.flatbuf.*/MetadataVersion {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.MetadataVersion} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/MetadataVersion.V1;
-        }
-
-        /**
-         * @param {org.apache.arrow.flatbuf.Schema=} obj
-         * @returns {org.apache.arrow.flatbuf.Schema|null}
-         */
-        schema(obj?: /*org.apache.arrow.flatbuf.*/Schema): /*org.apache.arrow.flatbuf.*/Schema | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Schema).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.Block=} obj
-         * @returns {org.apache.arrow.flatbuf.Block}
-         */
-        dictionaries(index: number, obj?: /*org.apache.arrow.flatbuf.*/Block): /*org.apache.arrow.flatbuf.*/Block | null {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Block).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        dictionariesLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.Block=} obj
-         * @returns {org.apache.arrow.flatbuf.Block}
-         */
-        recordBatches(index: number, obj?: /*org.apache.arrow.flatbuf.*/Block): /*org.apache.arrow.flatbuf.*/Block | null {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Block).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        recordBatchesLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startFooter(builder: flatbuffers.Builder) {
-            builder.startObject(4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.MetadataVersion} version
-         */
-        static addVersion(builder: flatbuffers.Builder, version: /*org.apache.arrow.flatbuf.*/MetadataVersion) {
-            builder.addFieldInt16(0, version, /*org.apache.arrow.flatbuf.*/MetadataVersion.V1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} schemaOffset
-         */
-        static addSchema(builder: flatbuffers.Builder, schemaOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, schemaOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} dictionariesOffset
-         */
-        static addDictionaries(builder: flatbuffers.Builder, dictionariesOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(2, dictionariesOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startDictionariesVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(24, numElems, 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} recordBatchesOffset
-         */
-        static addRecordBatches(builder: flatbuffers.Builder, recordBatchesOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(3, recordBatchesOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startRecordBatchesVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(24, numElems, 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endFooter(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} offset
-         */
-        static finishFooterBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
-            builder.finish(offset);
-        }
-
-    }
+    metaDataLength(): number {
+        return this.bb.readInt32(this.bb_pos + 8);
+    };
 
     /**
-     * @constructor
-     */
-
-    export class Block {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Block}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Block {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * Index to the start of the RecordBlock (note this is past the Message header)
-         *
-         * @returns {flatbuffers.Long}
-         */
-        offset(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos);
-        }
-
-        /**
-         * Length of the metadata
-         *
-         * @returns {number}
-         */
-        metaDataLength(): number {
-            return this.bb.readInt32(this.bb_pos + 8);
-        }
-
-        /**
-         * Length of the data (this is aligned so there can be a gap between this and
-         * the metatdata).
-         *
-         * @returns {flatbuffers.Long}
-         */
-        bodyLength(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos + 16);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} offset
-         * @param {number} metaDataLength
-         * @param {flatbuffers.Long} bodyLength
-         * @returns {flatbuffers.Offset}
-         */
-        static createBlock(builder: flatbuffers.Builder, offset: flatbuffers.Long, metaDataLength: number, bodyLength: flatbuffers.Long): flatbuffers.Offset {
-            builder.prep(8, 24);
-            builder.writeInt64(bodyLength);
-            builder.pad(4);
-            builder.writeInt32(metaDataLength);
-            builder.writeInt64(offset);
-            return builder.offset();
-        }
-
-    }
-
-    /**
-     * ----------------------------------------------------------------------
-     * The root Message type
-     * This union enables us to easily send different message types without
-     * redundant storage, and in the future we can easily add new message types.
+     * Length of the data (this is aligned so there can be a gap between this and
+     * the metatdata).
      *
-     * Arrow implementations do not need to implement all of the message types,
-     * which may include experimental metadata types. For maximum compatibility,
-     * it is best to send data using RecordBatch
+     * @returns {flatbuffers.Long}
+     */
+    bodyLength(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos + 16);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} offset
+     * @param {number} metaDataLength
+     * @param {flatbuffers.Long} bodyLength
+     * @returns {flatbuffers.Offset}
+     */
+    static createBlock(builder: flatbuffers.Builder, offset: flatbuffers.Long, metaDataLength: number, bodyLength: flatbuffers.Long): flatbuffers.Offset {
+        builder.prep(8, 24);
+        builder.writeInt64(bodyLength);
+        builder.pad(4);
+        builder.writeInt32(metaDataLength);
+        builder.writeInt64(offset);
+        return builder.offset();
+    };
+
+}
+// }
+
+// automatically generated by the FlatBuffers compiler, do not modify
+
+/**
+ * ----------------------------------------------------------------------
+ * The root Message type
+ * This union enables us to easily send different message types without
+ * redundant storage, and in the future we can easily add new message types.
+ *
+ * Arrow implementations do not need to implement all of the message types,
+ * which may include experimental metadata types. For maximum compatibility,
+ * it is best to send data using RecordBatch
+ *
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum MessageHeader {
+    NONE = 0,
+    Schema = 1,
+    DictionaryBatch = 2,
+    RecordBatch = 3,
+    Tensor = 4
+}
+// };
+
+/**
+ * ----------------------------------------------------------------------
+ * Data structures for describing a table row batch (a collection of
+ * equal-length Arrow arrays)
+ * Metadata about a field at some level of a nested type tree (but not
+ * its children).
+ *
+ * For example, a List<Int16> with values [[1, 2, 3], null, [4], [5, 6], null]
+ * would have {length: 5, null_count: 2} for its List node, and {length: 6,
+ * null_count: 0} for its Int16 node, as separate FieldNode structs
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class FieldNode {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {FieldNode}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): FieldNode {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * The number of value slots in the Arrow array at this level of a nested
+     * tree
      *
-     * @enum
+     * @returns {flatbuffers.Long}
      */
-    export enum MessageHeader {
-        NONE = 0,
-        Schema = 1,
-        DictionaryBatch = 2,
-        RecordBatch = 3,
-        Tensor = 4
-    }
+    length(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos);
+    };
 
     /**
-     * ----------------------------------------------------------------------
-     * Data structures for describing a table row batch (a collection of
-     * equal-length Arrow arrays)
-     * Metadata about a field at some level of a nested type tree (but not
-     * its children).
+     * The number of observed nulls. Fields with null_count == 0 may choose not
+     * to write their physical validity bitmap out as a materialized buffer,
+     * instead setting the length of the bitmap buffer to 0.
      *
-     * For example, a List<Int16> with values [[1, 2, 3], null, [4], [5, 6], null]
-     * would have {length: 5, null_count: 2} for its List node, and {length: 6,
-     * null_count: 0} for its Int16 node, as separate FieldNode structs
+     * @returns {flatbuffers.Long}
+     */
+    nullCount(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos + 8);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} length
+     * @param {flatbuffers.Long} null_count
+     * @returns {flatbuffers.Offset}
+     */
+    static createFieldNode(builder: flatbuffers.Builder, length: flatbuffers.Long, null_count: flatbuffers.Long): flatbuffers.Offset {
+        builder.prep(8, 16);
+        builder.writeInt64(null_count);
+        builder.writeInt64(length);
+        return builder.offset();
+    };
+
+}
+// }
+/**
+ * A data header describing the shared memory layout of a "record" or "row"
+ * batch. Some systems call this a "row batch" internally and others a "record
+ * batch".
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class RecordBatch {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {RecordBatch}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): RecordBatch {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {RecordBatch=} obj
+     * @returns {RecordBatch}
+     */
+    static getRootAsRecordBatch(bb: flatbuffers.ByteBuffer, obj?: RecordBatch): RecordBatch {
+        return (obj || new RecordBatch).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * number of records / rows. The arrays in the batch should all have this
+     * length
      *
-     * @constructor
+     * @returns {flatbuffers.Long}
      */
-    export class FieldNode {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
+    length(): flatbuffers.Long {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+    };
 
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {FieldNode}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): FieldNode {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * The number of value slots in the Arrow array at this level of a nested
-         * tree
-         *
-         * @returns {flatbuffers.Long}
-         */
-        length(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos);
-        }
-
-        /**
-         * The number of observed nulls. Fields with null_count == 0 may choose not
-         * to write their physical validity bitmap out as a materialized buffer,
-         * instead setting the length of the bitmap buffer to 0.
-         *
-         * @returns {flatbuffers.Long}
-         */
-        nullCount(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos + 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} length
-         * @param {flatbuffers.Long} null_count
-         * @returns {flatbuffers.Offset}
-         */
-        static createFieldNode(builder: flatbuffers.Builder, length: flatbuffers.Long, null_count: flatbuffers.Long): flatbuffers.Offset {
-            builder.prep(8, 16);
-            builder.writeInt64(null_count);
-            builder.writeInt64(length);
-            return builder.offset();
-        }
-
-    }
     /**
-     * A data header describing the shared memory layout of a "record" or "row"
-     * batch. Some systems call this a "row batch" internally and others a "record
-     * batch".
+     * Nodes correspond to the pre-ordered flattened logical schema
      *
-     * @constructor
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.FieldNode=} obj
+     * @returns {org.apache.arrow.flatbuf.FieldNode}
      */
-    export class RecordBatch {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
+    nodes(index: number, obj?:/*org.apache.arrow.flatbuf.*/FieldNode):/*org.apache.arrow.flatbuf.*/FieldNode | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/FieldNode).__init(this.bb.__vector(this.bb_pos + offset) + index * 16, this.bb) : null;
+    };
 
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {RecordBatch}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): RecordBatch {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {RecordBatch=} obj
-         * @returns {RecordBatch}
-         */
-        static getRootAsRecordBatch(bb: flatbuffers.ByteBuffer, obj?: RecordBatch): RecordBatch {
-            return (obj || new RecordBatch).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * number of records / rows. The arrays in the batch should all have this
-         * length
-         *
-         * @returns {flatbuffers.Long}
-         */
-        length(): flatbuffers.Long {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-        }
-
-        /**
-         * Nodes correspond to the pre-ordered flattened logical schema
-         *
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.FieldNode=} obj
-         * @returns {org.apache.arrow.flatbuf.FieldNode}
-         */
-        nodes(index: number, obj?: /*org.apache.arrow.flatbuf.*/FieldNode): /*org.apache.arrow.flatbuf.*/FieldNode | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/FieldNode).__init(this.bb.__vector(this.bb_pos + offset) + index * 16, this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        nodesLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * Buffers correspond to the pre-ordered flattened buffer tree
-         *
-         * The number of buffers appended to this list depends on the schema. For
-         * example, most primitive arrays will have 2 buffers, 1 for the validity
-         * bitmap and 1 for the values. For struct arrays, there will only be a
-         * single buffer for the validity (nulls) bitmap
-         *
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.Buffer=} obj
-         * @returns {org.apache.arrow.flatbuf.Buffer}
-         */
-        buffers(index: number, obj?: /*org.apache.arrow.flatbuf.*/Buffer): /*org.apache.arrow.flatbuf.*/Buffer | null {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Buffer).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        buffersLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startRecordBatch(builder: flatbuffers.Builder) {
-            builder.startObject(3);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} length
-         */
-        static addLength(builder: flatbuffers.Builder, length: flatbuffers.Long) {
-            builder.addFieldInt64(0, length, builder.createLong(0, 0));
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} nodesOffset
-         */
-        static addNodes(builder: flatbuffers.Builder, nodesOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, nodesOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startNodesVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(16, numElems, 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} buffersOffset
-         */
-        static addBuffers(builder: flatbuffers.Builder, buffersOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(2, buffersOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startBuffersVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(24, numElems, 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endRecordBatch(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
     /**
-     * ----------------------------------------------------------------------
-     * For sending dictionary encoding information. Any Field can be
-     * dictionary-encoded, but in this case none of its children may be
-     * dictionary-encoded.
-     * There is one vector / column per dictionary
+     * @returns {number}
+     */
+    nodesLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * Buffers correspond to the pre-ordered flattened buffer tree
      *
+     * The number of buffers appended to this list depends on the schema. For
+     * example, most primitive arrays will have 2 buffers, 1 for the validity
+     * bitmap and 1 for the values. For struct arrays, there will only be a
+     * single buffer for the validity (nulls) bitmap
      *
-     * @constructor
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.Buffer=} obj
+     * @returns {org.apache.arrow.flatbuf.Buffer}
      */
-    export class DictionaryBatch {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {DictionaryBatch}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): DictionaryBatch {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {DictionaryBatch=} obj
-         * @returns {DictionaryBatch}
-         */
-        static getRootAsDictionaryBatch(bb: flatbuffers.ByteBuffer, obj?: DictionaryBatch): DictionaryBatch {
-            return (obj || new DictionaryBatch).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {flatbuffers.Long}
-         */
-        id(): flatbuffers.Long {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-        }
-
-        /**
-         * @param {org.apache.arrow.flatbuf.RecordBatch=} obj
-         * @returns {org.apache.arrow.flatbuf.RecordBatch|null}
-         */
-        data(obj?: /*org.apache.arrow.flatbuf.*/RecordBatch): /*org.apache.arrow.flatbuf.*/RecordBatch | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/RecordBatch).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startDictionaryBatch(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} id
-         */
-        static addId(builder: flatbuffers.Builder, id: flatbuffers.Long) {
-            builder.addFieldInt64(0, id, builder.createLong(0, 0));
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} dataOffset
-         */
-        static addData(builder: flatbuffers.Builder, dataOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, dataOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endDictionaryBatch(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Message {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Message}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Message {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Message=} obj
-         * @returns {Message}
-         */
-        static getRootAsMessage(bb: flatbuffers.ByteBuffer, obj?: Message): Message {
-            return (obj || new Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.MetadataVersion}
-         */
-        version(): /*org.apache.arrow.flatbuf.*/MetadataVersion {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.MetadataVersion} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/MetadataVersion.V1;
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.MessageHeader}
-         */
-        headerType(): /*org.apache.arrow.flatbuf.*/MessageHeader {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? /** @type {org.apache.arrow.flatbuf.MessageHeader} */ (this.bb.readUint8(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/MessageHeader.NONE;
-        }
-
-        /**
-         * @param {flatbuffers.Table} obj
-         * @returns {?flatbuffers.Table}
-         */
-        header<T extends flatbuffers.Table>(obj: T): T | null {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
-        }
-
-        /**
-         * @returns {flatbuffers.Long}
-         */
-        bodyLength(): flatbuffers.Long {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startMessage(builder: flatbuffers.Builder) {
-            builder.startObject(4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.MetadataVersion} version
-         */
-        static addVersion(builder: flatbuffers.Builder, version: /*org.apache.arrow.flatbuf.*/MetadataVersion) {
-            builder.addFieldInt16(0, version, /*org.apache.arrow.flatbuf.*/MetadataVersion.V1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.MessageHeader} headerType
-         */
-        static addHeaderType(builder: flatbuffers.Builder, headerType: /*org.apache.arrow.flatbuf.*/MessageHeader) {
-            builder.addFieldInt8(1, headerType, /*org.apache.arrow.flatbuf.*/MessageHeader.NONE);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} headerOffset
-         */
-        static addHeader(builder: flatbuffers.Builder, headerOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(2, headerOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} bodyLength
-         */
-        static addBodyLength(builder: flatbuffers.Builder, bodyLength: flatbuffers.Long) {
-            builder.addFieldInt64(3, bodyLength, builder.createLong(0, 0));
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endMessage(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} offset
-         */
-        static finishMessageBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
-            builder.finish(offset);
-        }
-
-    }
+    buffers(index: number, obj?:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer):/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer | null {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? (obj || new /*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer).__init(this.bb.__vector(this.bb_pos + offset) + index * 24, this.bb) : null;
+    };
 
     /**
-     * @enum
+     * @returns {number}
      */
-    export enum MetadataVersion {
-        V1 = 0,
-        V2 = 1,
-        V3 = 2
-    }
+    buffersLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
 
     /**
-     * @enum
+     * @param {flatbuffers.Builder} builder
      */
-    export enum UnionMode {
-        Sparse = 0,
-        Dense = 1
-    }
+    static startRecordBatch(builder: flatbuffers.Builder) {
+        builder.startObject(3);
+    };
 
     /**
-     * @enum
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} length
      */
-    export enum Precision {
-        HALF = 0,
-        SINGLE = 1,
-        DOUBLE = 2
-    }
+    static addLength(builder: flatbuffers.Builder, length: flatbuffers.Long) {
+        builder.addFieldInt64(0, length, builder.createLong(0, 0));
+    };
 
     /**
-     * @enum
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} nodesOffset
      */
-    export enum DateUnit {
-        DAY = 0,
-        MILLISECOND = 1
-    }
+    static addNodes(builder: flatbuffers.Builder, nodesOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, nodesOffset, 0);
+    };
 
     /**
-     * @enum
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
      */
-    export enum TimeUnit {
-        SECOND = 0,
-        MILLISECOND = 1,
-        MICROSECOND = 2,
-        NANOSECOND = 3
-    }
+    static startNodesVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(16, numElems, 8);
+    };
 
     /**
-     * @enum
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} buffersOffset
      */
-    export enum IntervalUnit {
-        YEAR_MONTH = 0,
-        DAY_TIME = 1
-    }
+    static addBuffers(builder: flatbuffers.Builder, buffersOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(2, buffersOffset, 0);
+    };
 
     /**
-     * ----------------------------------------------------------------------
-     * Top-level Type value, enabling extensible type-specific metadata. We can
-     * add new logical types to Type without breaking backwards compatibility
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startBuffersVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(24, numElems, 8);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endRecordBatch(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * For sending dictionary encoding information. Any Field can be
+ * dictionary-encoded, but in this case none of its children may be
+ * dictionary-encoded.
+ * There is one vector / column per dictionary
+ *
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class DictionaryBatch {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {DictionaryBatch}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): DictionaryBatch {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {DictionaryBatch=} obj
+     * @returns {DictionaryBatch}
+     */
+    static getRootAsDictionaryBatch(bb: flatbuffers.ByteBuffer, obj?: DictionaryBatch): DictionaryBatch {
+        return (obj || new DictionaryBatch).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {flatbuffers.Long}
+     */
+    id(): flatbuffers.Long {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+    };
+
+    /**
+     * @param {org.apache.arrow.flatbuf.RecordBatch=} obj
+     * @returns {org.apache.arrow.flatbuf.RecordBatch|null}
+     */
+    data(obj?:/*org.apache.arrow.flatbuf.*/RecordBatch):/*org.apache.arrow.flatbuf.*/RecordBatch | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/RecordBatch).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startDictionaryBatch(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} id
+     */
+    static addId(builder: flatbuffers.Builder, id: flatbuffers.Long) {
+        builder.addFieldInt64(0, id, builder.createLong(0, 0));
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} dataOffset
+     */
+    static addData(builder: flatbuffers.Builder, dataOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, dataOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endDictionaryBatch(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Message {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Message}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Message {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Message=} obj
+     * @returns {Message}
+     */
+    static getRootAsMessage(bb: flatbuffers.ByteBuffer, obj?: Message): Message {
+        return (obj || new Message).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.MetadataVersion}
+     */
+    version():/*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.MetadataVersion} */ (this.bb.readInt16(this.bb_pos + offset)) : /*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion.V1;
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.MessageHeader}
+     */
+    headerType():/*org.apache.arrow.flatbuf.*/MessageHeader {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? /** @type {org.apache.arrow.flatbuf.MessageHeader} */ (this.bb.readUint8(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/MessageHeader.NONE;
+    };
+
+    /**
+     * @param {flatbuffers.Table} obj
+     * @returns {?flatbuffers.Table}
+     */
+    header<T extends flatbuffers.Table>(obj: T): T | null {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
+    };
+
+    /**
+     * @returns {flatbuffers.Long}
+     */
+    bodyLength(): flatbuffers.Long {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startMessage(builder: flatbuffers.Builder) {
+        builder.startObject(4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.MetadataVersion} version
+     */
+    static addVersion(builder: flatbuffers.Builder, version:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion) {
+        builder.addFieldInt16(0, version, /*NS16187549871986683199.org.apache.arrow.flatbuf.*/MetadataVersion.V1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.MessageHeader} headerType
+     */
+    static addHeaderType(builder: flatbuffers.Builder, headerType:/*org.apache.arrow.flatbuf.*/MessageHeader) {
+        builder.addFieldInt8(1, headerType, /*org.apache.arrow.flatbuf.*/MessageHeader.NONE);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} headerOffset
+     */
+    static addHeader(builder: flatbuffers.Builder, headerOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(2, headerOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} bodyLength
+     */
+    static addBodyLength(builder: flatbuffers.Builder, bodyLength: flatbuffers.Long) {
+        builder.addFieldInt64(3, bodyLength, builder.createLong(0, 0));
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endMessage(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} offset
+     */
+    static finishMessageBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
+        builder.finish(offset);
+    };
+
+}
+// }
+
+// automatically generated by the FlatBuffers compiler, do not modify
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum MetadataVersion {
+    V1 = 0,
+    V2 = 1,
+    V3 = 2
+}
+// };
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum UnionMode {
+    Sparse = 0,
+    Dense = 1
+}
+// };
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum Precision {
+    HALF = 0,
+    SINGLE = 1,
+    DOUBLE = 2
+}
+// };
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum DateUnit {
+    DAY = 0,
+    MILLISECOND = 1
+}
+// };
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum TimeUnit {
+    SECOND = 0,
+    MILLISECOND = 1,
+    MICROSECOND = 2,
+    NANOSECOND = 3
+}
+// };
+
+/**
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum IntervalUnit {
+    YEAR_MONTH = 0,
+    DAY_TIME = 1
+}
+// };
+
+/**
+ * ----------------------------------------------------------------------
+ * Top-level Type value, enabling extensible type-specific metadata. We can
+ * add new logical types to Type without breaking backwards compatibility
+ *
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum Type {
+    NONE = 0,
+    Null = 1,
+    Int = 2,
+    FloatingPoint = 3,
+    Binary = 4,
+    Utf8 = 5,
+    Bool = 6,
+    Decimal = 7,
+    Date = 8,
+    Time = 9,
+    Timestamp = 10,
+    Interval = 11,
+    List = 12,
+    Struct_ = 13,
+    Union = 14,
+    FixedSizeBinary = 15,
+    FixedSizeList = 16
+}
+// };
+
+/**
+ * ----------------------------------------------------------------------
+ * The possible types of a vector
+ *
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum VectorType {
+    /**
+     * used in List type, Dense Union and variable length primitive types (String, Binary)
+     */
+    OFFSET = 0,
+
+    /**
+     * actual data, either wixed width primitive types in slots or variable width delimited by an OFFSET vector
+     */
+    DATA = 1,
+
+    /**
+     * Bit vector indicating if each value is null
+     */
+    VALIDITY = 2,
+
+    /**
+     * Type vector used in Union type
+     */
+    TYPE = 3
+}
+// };
+
+/**
+ * ----------------------------------------------------------------------
+ * Endianness of the platform producing the data
+ *
+ * @enum
+ */
+// export namespace org.apache.arrow.flatbuf{
+export enum Endianness {
+    Little = 0,
+    Big = 1
+}
+// };
+
+/**
+ * These are stored in the flatbuffer in the Type union below
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Null {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Null}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Null {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Null=} obj
+     * @returns {Null}
+     */
+    static getRootAsNull(bb: flatbuffers.ByteBuffer, obj?: Null): Null {
+        return (obj || new Null).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startNull(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endNull(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * A Struct_ in the flatbuffer metadata is the same as an Arrow Struct
+ * (according to the physical memory layout). We used Struct_ here as
+ * Struct is a reserved word in Flatbuffers
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Struct_ {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Struct_}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Struct_ {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Struct_=} obj
+     * @returns {Struct_}
+     */
+    static getRootAsStruct_(bb: flatbuffers.ByteBuffer, obj?: Struct_): Struct_ {
+        return (obj || new Struct_).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startStruct_(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endStruct_(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class List {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {List}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): List {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {List=} obj
+     * @returns {List}
+     */
+    static getRootAsList(bb: flatbuffers.ByteBuffer, obj?: List): List {
+        return (obj || new List).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startList(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endList(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class FixedSizeList {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {FixedSizeList}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): FixedSizeList {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {FixedSizeList=} obj
+     * @returns {FixedSizeList}
+     */
+    static getRootAsFixedSizeList(bb: flatbuffers.ByteBuffer, obj?: FixedSizeList): FixedSizeList {
+        return (obj || new FixedSizeList).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * Number of list items per value
      *
-     * @enum
+     * @returns {number}
      */
-    export enum Type {
-        NONE = 0,
-        Null = 1,
-        Int = 2,
-        FloatingPoint = 3,
-        Binary = 4,
-        Utf8 = 5,
-        Bool = 6,
-        Decimal = 7,
-        Date = 8,
-        Time = 9,
-        Timestamp = 10,
-        Interval = 11,
-        List = 12,
-        Struct_ = 13,
-        Union = 14,
-        FixedSizeBinary = 15,
-        FixedSizeList = 16
-    }
+    listSize(): number {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+    };
 
     /**
-     * ----------------------------------------------------------------------
-     * The possible types of a vector
+     * @param {flatbuffers.Builder} builder
+     */
+    static startFixedSizeList(builder: flatbuffers.Builder) {
+        builder.startObject(1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} listSize
+     */
+    static addListSize(builder: flatbuffers.Builder, listSize: number) {
+        builder.addFieldInt32(0, listSize, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endFixedSizeList(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * A union is a complex type with children in Field
+ * By default ids in the type vector refer to the offsets in the children
+ * optionally typeIds provides an indirection between the child offset and the type id
+ * for each child typeIds[offset] is the id used in the type vector
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Union {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Union}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Union {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Union=} obj
+     * @returns {Union}
+     */
+    static getRootAsUnion(bb: flatbuffers.ByteBuffer, obj?: Union): Union {
+        return (obj || new Union).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.UnionMode}
+     */
+    mode():/*org.apache.arrow.flatbuf.*/UnionMode {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.UnionMode} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/UnionMode.Sparse;
+    };
+
+    /**
+     * @param {number} index
+     * @returns {number}
+     */
+    typeIds(index: number): number | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+    };
+
+    /**
+     * @returns {number}
+     */
+    typeIdsLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @returns {Int32Array}
+     */
+    typeIdsArray(): Int32Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startUnion(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.UnionMode} mode
+     */
+    static addMode(builder: flatbuffers.Builder, mode:/*org.apache.arrow.flatbuf.*/UnionMode) {
+        builder.addFieldInt16(0, mode, /*org.apache.arrow.flatbuf.*/UnionMode.Sparse);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} typeIdsOffset
+     */
+    static addTypeIds(builder: flatbuffers.Builder, typeIdsOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, typeIdsOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<number>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createTypeIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt32(data[i]);
+        }
+        return builder.endVector();
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startTypeIdsVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endUnion(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Int {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Int}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Int {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Int=} obj
+     * @returns {Int}
+     */
+    static getRootAsInt(bb: flatbuffers.ByteBuffer, obj?: Int): Int {
+        return (obj || new Int).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {number}
+     */
+    bitWidth(): number {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @returns {boolean}
+     */
+    isSigned(): boolean {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startInt(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} bitWidth
+     */
+    static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
+        builder.addFieldInt32(0, bitWidth, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {boolean} isSigned
+     */
+    static addIsSigned(builder: flatbuffers.Builder, isSigned: boolean) {
+        builder.addFieldInt8(1, +isSigned, +false);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endInt(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class FloatingPoint {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {FloatingPoint}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): FloatingPoint {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {FloatingPoint=} obj
+     * @returns {FloatingPoint}
+     */
+    static getRootAsFloatingPoint(bb: flatbuffers.ByteBuffer, obj?: FloatingPoint): FloatingPoint {
+        return (obj || new FloatingPoint).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.Precision}
+     */
+    precision():/*org.apache.arrow.flatbuf.*/Precision {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.Precision} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Precision.HALF;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startFloatingPoint(builder: flatbuffers.Builder) {
+        builder.startObject(1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.Precision} precision
+     */
+    static addPrecision(builder: flatbuffers.Builder, precision:/*org.apache.arrow.flatbuf.*/Precision) {
+        builder.addFieldInt16(0, precision, /*org.apache.arrow.flatbuf.*/Precision.HALF);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endFloatingPoint(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * Unicode with UTF-8 encoding
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Utf8 {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Utf8}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Utf8 {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Utf8=} obj
+     * @returns {Utf8}
+     */
+    static getRootAsUtf8(bb: flatbuffers.ByteBuffer, obj?: Utf8): Utf8 {
+        return (obj || new Utf8).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startUtf8(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endUtf8(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Binary {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Binary}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Binary {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Binary=} obj
+     * @returns {Binary}
+     */
+    static getRootAsBinary(bb: flatbuffers.ByteBuffer, obj?: Binary): Binary {
+        return (obj || new Binary).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startBinary(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endBinary(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class FixedSizeBinary {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {FixedSizeBinary}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): FixedSizeBinary {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {FixedSizeBinary=} obj
+     * @returns {FixedSizeBinary}
+     */
+    static getRootAsFixedSizeBinary(bb: flatbuffers.ByteBuffer, obj?: FixedSizeBinary): FixedSizeBinary {
+        return (obj || new FixedSizeBinary).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * Number of bytes per value
      *
-     * @enum
+     * @returns {number}
      */
-    export enum VectorType {
-        /**
-         * used in List type, Dense Union and variable length primitive types (String, Binary)
-         */
-        OFFSET = 0,
-
-        /**
-         * actual data, either wixed width primitive types in slots or variable width delimited by an OFFSET vector
-         */
-        DATA = 1,
-
-        /**
-         * Bit vector indicating if each value is null
-         */
-        VALIDITY = 2,
-
-        /**
-         * Type vector used in Union type
-         */
-        TYPE = 3
-    }
+    byteWidth(): number {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+    };
 
     /**
-     * ----------------------------------------------------------------------
-     * Endianness of the platform producing the data
+     * @param {flatbuffers.Builder} builder
+     */
+    static startFixedSizeBinary(builder: flatbuffers.Builder) {
+        builder.startObject(1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} byteWidth
+     */
+    static addByteWidth(builder: flatbuffers.Builder, byteWidth: number) {
+        builder.addFieldInt32(0, byteWidth, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endFixedSizeBinary(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Bool {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Bool}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Bool {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Bool=} obj
+     * @returns {Bool}
+     */
+    static getRootAsBool(bb: flatbuffers.ByteBuffer, obj?: Bool): Bool {
+        return (obj || new Bool).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startBool(builder: flatbuffers.Builder) {
+        builder.startObject(0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endBool(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Decimal {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Decimal}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Decimal {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Decimal=} obj
+     * @returns {Decimal}
+     */
+    static getRootAsDecimal(bb: flatbuffers.ByteBuffer, obj?: Decimal): Decimal {
+        return (obj || new Decimal).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * Total number of decimal digits
      *
-     * @enum
+     * @returns {number}
      */
-    export enum Endianness {
-        Little = 0,
-        Big = 1
-    }
+    precision(): number {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+    };
 
     /**
-     * These are stored in the flatbuffer in the Type union below
+     * Number of digits after the decimal point "."
      *
-     * @constructor
+     * @returns {number}
      */
-    export class Null {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
+    scale(): number {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+    };
 
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Null}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Null {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Null=} obj
-         * @returns {Null}
-         */
-        static getRootAsNull(bb: flatbuffers.ByteBuffer, obj?: Null): Null {
-            return (obj || new Null).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startNull(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endNull(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
     /**
-     * A Struct_ in the flatbuffer metadata is the same as an Arrow Struct
-     * (according to the physical memory layout). We used Struct_ here as
-     * Struct is a reserved word in Flatbuffers
+     * @param {flatbuffers.Builder} builder
+     */
+    static startDecimal(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} precision
+     */
+    static addPrecision(builder: flatbuffers.Builder, precision: number) {
+        builder.addFieldInt32(0, precision, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} scale
+     */
+    static addScale(builder: flatbuffers.Builder, scale: number) {
+        builder.addFieldInt32(1, scale, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endDecimal(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * Date is either a 32-bit or 64-bit type representing elapsed time since UNIX
+ * epoch (1970-01-01), stored in either of two units:
+ *
+ * * Milliseconds (64 bits) indicating UNIX time elapsed since the epoch (no
+ *   leap seconds), where the values are evenly divisible by 86400000
+ * * Days (32 bits) since the UNIX epoch
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Date {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Date}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Date {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Date=} obj
+     * @returns {Date}
+     */
+    static getRootAsDate(bb: flatbuffers.ByteBuffer, obj?: Date): Date {
+        return (obj || new Date).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.DateUnit}
+     */
+    unit():/*org.apache.arrow.flatbuf.*/DateUnit {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.DateUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/DateUnit.MILLISECOND;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startDate(builder: flatbuffers.Builder) {
+        builder.startObject(1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.DateUnit} unit
+     */
+    static addUnit(builder: flatbuffers.Builder, unit:/*org.apache.arrow.flatbuf.*/DateUnit) {
+        builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/DateUnit.MILLISECOND);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endDate(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * Time type. The physical storage type depends on the unit
+ * - SECOND and MILLISECOND: 32 bits
+ * - MICROSECOND and NANOSECOND: 64 bits
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Time {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Time}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Time {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Time=} obj
+     * @returns {Time}
+     */
+    static getRootAsTime(bb: flatbuffers.ByteBuffer, obj?: Time): Time {
+        return (obj || new Time).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.TimeUnit}
+     */
+    unit():/*org.apache.arrow.flatbuf.*/TimeUnit {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.TimeUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/TimeUnit.MILLISECOND;
+    };
+
+    /**
+     * @returns {number}
+     */
+    bitWidth(): number {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.readInt32(this.bb_pos + offset) : 32;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startTime(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.TimeUnit} unit
+     */
+    static addUnit(builder: flatbuffers.Builder, unit:/*org.apache.arrow.flatbuf.*/TimeUnit) {
+        builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/TimeUnit.MILLISECOND);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} bitWidth
+     */
+    static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
+        builder.addFieldInt32(1, bitWidth, 32);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endTime(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * Time elapsed from the Unix epoch, 00:00:00.000 on 1 January 1970, excluding
+ * leap seconds, as a 64-bit integer. Note that UNIX time does not include
+ * leap seconds.
+ *
+ * The Timestamp metadata supports both "time zone naive" and "time zone
+ * aware" timestamps. Read about the timezone attribute for more detail
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Timestamp {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Timestamp}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Timestamp {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Timestamp=} obj
+     * @returns {Timestamp}
+     */
+    static getRootAsTimestamp(bb: flatbuffers.ByteBuffer, obj?: Timestamp): Timestamp {
+        return (obj || new Timestamp).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.TimeUnit}
+     */
+    unit():/*org.apache.arrow.flatbuf.*/TimeUnit {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.TimeUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/TimeUnit.SECOND;
+    };
+
+    /**
+     * The time zone is a string indicating the name of a time zone, one of:
      *
-     * @constructor
-     */
-    // tslint:disable-next-line:class-name
-    export class Struct_ {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Struct_}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Struct_ {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Struct_=} obj
-         * @returns {Struct_}
-         */
-        static getRootAsStruct_(bb: flatbuffers.ByteBuffer, obj?: Struct_): Struct_ {
-            return (obj || new Struct_).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startStruct_(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endStruct_(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class List {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {List}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): List {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {List=} obj
-         * @returns {List}
-         */
-        static getRootAsList(bb: flatbuffers.ByteBuffer, obj?: List): List {
-            return (obj || new List).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startList(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endList(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class FixedSizeList {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {FixedSizeList}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): FixedSizeList {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {FixedSizeList=} obj
-         * @returns {FixedSizeList}
-         */
-        static getRootAsFixedSizeList(bb: flatbuffers.ByteBuffer, obj?: FixedSizeList): FixedSizeList {
-            return (obj || new FixedSizeList).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * Number of list items per value
-         *
-         * @returns {number}
-         */
-        listSize(): number {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startFixedSizeList(builder: flatbuffers.Builder) {
-            builder.startObject(1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} listSize
-         */
-        static addListSize(builder: flatbuffers.Builder, listSize: number) {
-            builder.addFieldInt32(0, listSize, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endFixedSizeList(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * A union is a complex type with children in Field
-     * By default ids in the type vector refer to the offsets in the children
-     * optionally typeIds provides an indirection between the child offset and the type id
-     * for each child typeIds[offset] is the id used in the type vector
+     * * As used in the Olson time zone database (the "tz database" or
+     *   "tzdata"), such as "America/New_York"
+     * * An absolute time zone offset of the form +XX:XX or -XX:XX, such as +07:30
      *
-     * @constructor
-     */
-    export class Union {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Union}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Union {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Union=} obj
-         * @returns {Union}
-         */
-        static getRootAsUnion(bb: flatbuffers.ByteBuffer, obj?: Union): Union {
-            return (obj || new Union).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.UnionMode}
-         */
-        mode(): /*org.apache.arrow.flatbuf.*/UnionMode {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.UnionMode} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/UnionMode.Sparse;
-        }
-
-        /**
-         * @param {number} index
-         * @returns {number}
-         */
-        typeIds(index: number): number | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
-        }
-
-        /**
-         * @returns {number}
-         */
-        typeIdsLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @returns {Int32Array}
-         */
-        typeIdsArray(): Int32Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startUnion(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.UnionMode} mode
-         */
-        static addMode(builder: flatbuffers.Builder, mode: /*org.apache.arrow.flatbuf.*/UnionMode) {
-            builder.addFieldInt16(0, mode, /*org.apache.arrow.flatbuf.*/UnionMode.Sparse);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} typeIdsOffset
-         */
-        static addTypeIds(builder: flatbuffers.Builder, typeIdsOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, typeIdsOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<number>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createTypeIdsVector(builder: flatbuffers.Builder, data: number[] | Uint8Array): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addInt32(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startTypeIdsVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endUnion(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Int {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Int}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Int {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Int=} obj
-         * @returns {Int}
-         */
-        static getRootAsInt(bb: flatbuffers.ByteBuffer, obj?: Int): Int {
-            return (obj || new Int).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {number}
-         */
-        bitWidth(): number {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @returns {boolean}
-         */
-        isSigned(): boolean {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startInt(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} bitWidth
-         */
-        static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
-            builder.addFieldInt32(0, bitWidth, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {boolean} isSigned
-         */
-        static addIsSigned(builder: flatbuffers.Builder, isSigned: boolean) {
-            builder.addFieldInt8(1, +isSigned, +false);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endInt(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class FloatingPoint {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {FloatingPoint}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): FloatingPoint {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {FloatingPoint=} obj
-         * @returns {FloatingPoint}
-         */
-        static getRootAsFloatingPoint(bb: flatbuffers.ByteBuffer, obj?: FloatingPoint): FloatingPoint {
-            return (obj || new FloatingPoint).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.Precision}
-         */
-        precision(): /*org.apache.arrow.flatbuf.*/Precision {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.Precision} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Precision.HALF;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startFloatingPoint(builder: flatbuffers.Builder) {
-            builder.startObject(1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.Precision} precision
-         */
-        static addPrecision(builder: flatbuffers.Builder, precision: /*org.apache.arrow.flatbuf.*/Precision) {
-            builder.addFieldInt16(0, precision, /*org.apache.arrow.flatbuf.*/Precision.HALF);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endFloatingPoint(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * Unicode with UTF-8 encoding
+     * Whether a timezone string is present indicates different semantics about
+     * the data:
      *
-     * @constructor
-     */
-    export class Utf8 {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Utf8}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Utf8 {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Utf8=} obj
-         * @returns {Utf8}
-         */
-        static getRootAsUtf8(bb: flatbuffers.ByteBuffer, obj?: Utf8): Utf8 {
-            return (obj || new Utf8).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startUtf8(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endUtf8(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Binary {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Binary}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Binary {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Binary=} obj
-         * @returns {Binary}
-         */
-        static getRootAsBinary(bb: flatbuffers.ByteBuffer, obj?: Binary): Binary {
-            return (obj || new Binary).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startBinary(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endBinary(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class FixedSizeBinary {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {FixedSizeBinary}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): FixedSizeBinary {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {FixedSizeBinary=} obj
-         * @returns {FixedSizeBinary}
-         */
-        static getRootAsFixedSizeBinary(bb: flatbuffers.ByteBuffer, obj?: FixedSizeBinary): FixedSizeBinary {
-            return (obj || new FixedSizeBinary).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * Number of bytes per value
-         *
-         * @returns {number}
-         */
-        byteWidth(): number {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startFixedSizeBinary(builder: flatbuffers.Builder) {
-            builder.startObject(1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} byteWidth
-         */
-        static addByteWidth(builder: flatbuffers.Builder, byteWidth: number) {
-            builder.addFieldInt32(0, byteWidth, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endFixedSizeBinary(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Bool {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Bool}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Bool {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Bool=} obj
-         * @returns {Bool}
-         */
-        static getRootAsBool(bb: flatbuffers.ByteBuffer, obj?: Bool): Bool {
-            return (obj || new Bool).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startBool(builder: flatbuffers.Builder) {
-            builder.startObject(0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endBool(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Decimal {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Decimal}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Decimal {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Decimal=} obj
-         * @returns {Decimal}
-         */
-        static getRootAsDecimal(bb: flatbuffers.ByteBuffer, obj?: Decimal): Decimal {
-            return (obj || new Decimal).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * Total number of decimal digits
-         *
-         * @returns {number}
-         */
-        precision(): number {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * Number of digits after the decimal point "."
-         *
-         * @returns {number}
-         */
-        scale(): number {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startDecimal(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} precision
-         */
-        static addPrecision(builder: flatbuffers.Builder, precision: number) {
-            builder.addFieldInt32(0, precision, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} scale
-         */
-        static addScale(builder: flatbuffers.Builder, scale: number) {
-            builder.addFieldInt32(1, scale, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endDecimal(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * Date is either a 32-bit or 64-bit type representing elapsed time since UNIX
-     * epoch (1970-01-01), stored in either of two units:
+     * * If the time zone is null or equal to an empty string, the data is "time
+     *   zone naive" and shall be displayed *as is* to the user, not localized
+     *   to the locale of the user. This data can be though of as UTC but
+     *   without having "UTC" as the time zone, it is not considered to be
+     *   localized to any time zone
      *
-     * * Milliseconds (64 bits) indicating UNIX time elapsed since the epoch (no
-     *   leap seconds), where the values are evenly divisible by 86400000
-     * * Days (32 bits) since the UNIX epoch
+     * * If the time zone is set to a valid value, values can be displayed as
+     *   "localized" to that time zone, even though the underlying 64-bit
+     *   integers are identical to the same data stored in UTC. Converting
+     *   between time zones is a metadata-only operation and does not change the
+     *   underlying values
      *
-     * @constructor
+     * @param {flatbuffers.Encoding=} optionalEncoding
+     * @returns {string|Uint8Array|null}
      */
-    export class Date {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Date}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Date {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Date=} obj
-         * @returns {Date}
-         */
-        static getRootAsDate(bb: flatbuffers.ByteBuffer, obj?: Date): Date {
-            return (obj || new Date).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.DateUnit}
-         */
-        unit(): /*org.apache.arrow.flatbuf.*/DateUnit {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.DateUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/DateUnit.MILLISECOND;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startDate(builder: flatbuffers.Builder) {
-            builder.startObject(1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.DateUnit} unit
-         */
-        static addUnit(builder: flatbuffers.Builder, unit: /*org.apache.arrow.flatbuf.*/DateUnit) {
-            builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/DateUnit.MILLISECOND);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endDate(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * Time type. The physical storage type depends on the unit
-     * - SECOND and MILLISECOND: 32 bits
-     * - MICROSECOND and NANOSECOND: 64 bits
-     *
-     * @constructor
-     */
-    export class Time {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Time}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Time {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Time=} obj
-         * @returns {Time}
-         */
-        static getRootAsTime(bb: flatbuffers.ByteBuffer, obj?: Time): Time {
-            return (obj || new Time).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.TimeUnit}
-         */
-        unit(): /*org.apache.arrow.flatbuf.*/TimeUnit {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.TimeUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/TimeUnit.MILLISECOND;
-        }
-
-        /**
-         * @returns {number}
-         */
-        bitWidth(): number {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.readInt32(this.bb_pos + offset) : 32;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startTime(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.TimeUnit} unit
-         */
-        static addUnit(builder: flatbuffers.Builder, unit: /*org.apache.arrow.flatbuf.*/TimeUnit) {
-            builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/TimeUnit.MILLISECOND);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} bitWidth
-         */
-        static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
-            builder.addFieldInt32(1, bitWidth, 32);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endTime(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * Time elapsed from the Unix epoch, 00:00:00.000 on 1 January 1970, UTC.
-     *
-     * @constructor
-     */
-    export class Timestamp {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Timestamp}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Timestamp {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Timestamp=} obj
-         * @returns {Timestamp}
-         */
-        static getRootAsTimestamp(bb: flatbuffers.ByteBuffer, obj?: Timestamp): Timestamp {
-            return (obj || new Timestamp).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.TimeUnit}
-         */
-        unit(): /*org.apache.arrow.flatbuf.*/TimeUnit {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.TimeUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/TimeUnit.SECOND;
-        }
-
-        /**
-         * The time zone is a string indicating the name of a time zone, one of:
-         *
-         * * As used in the Olson time zone database (the "tz database" or
-         *   "tzdata"), such as "America/New_York"
-         * * An absolute time zone offset of the form +XX:XX or -XX:XX, such as +07:30
-         *
-         * Whether a timezone string is present indicates different semantics about
-         * the data:
-         *
-         * * If the time zone is null or equal to an empty string, the data is "time
-         *   zone naive" and shall be displayed *as is* to the user, not localized
-         *   to the locale of the user. This data can be though of as UTC but
-         *   without having "UTC" as the time zone, it is not considered to be
-         *   localized to any time zone
-         *
-         * * If the time zone is set to a valid value, values can be displayed as
-         *   "localized" to that time zone, even though the underlying 64-bit
-         *   integers are identical to the same data stored in UTC. Converting
-         *   between time zones is a metadata-only operation and does not change the
-         *   underlying values
-         *
-         * @param {flatbuffers.Encoding=} optionalEncoding
-         * @returns {string|Uint8Array|null}
-         */
-        timezone(): string | null;
-        timezone(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null;
-        timezone(optionalEncoding?: any): string | Uint8Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startTimestamp(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.TimeUnit} unit
-         */
-        static addUnit(builder: flatbuffers.Builder, unit: /*org.apache.arrow.flatbuf.*/TimeUnit) {
-            builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/TimeUnit.SECOND);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} timezoneOffset
-         */
-        static addTimezone(builder: flatbuffers.Builder, timezoneOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, timezoneOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endTimestamp(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * @constructor
-     */
-    export class Interval {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Interval}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Interval {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Interval=} obj
-         * @returns {Interval}
-         */
-        static getRootAsInterval(bb: flatbuffers.ByteBuffer, obj?: Interval): Interval {
-            return (obj || new Interval).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.IntervalUnit}
-         */
-        unit(): /*org.apache.arrow.flatbuf.*/IntervalUnit {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.IntervalUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/IntervalUnit.YEAR_MONTH;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startInterval(builder: flatbuffers.Builder) {
-            builder.startObject(1);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.IntervalUnit} unit
-         */
-        static addUnit(builder: flatbuffers.Builder, unit: /*org.apache.arrow.flatbuf.*/IntervalUnit) {
-            builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/IntervalUnit.YEAR_MONTH);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endInterval(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * represents the physical layout of a buffer
-     * buffers have fixed width slots of a given type
-     *
-     * @constructor
-     */
-    export class VectorLayout {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {VectorLayout}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): VectorLayout {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {VectorLayout=} obj
-         * @returns {VectorLayout}
-         */
-        static getRootAsVectorLayout(bb: flatbuffers.ByteBuffer, obj?: VectorLayout): VectorLayout {
-            return (obj || new VectorLayout).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * the width of a slot in the buffer (typically 1, 8, 16, 32 or 64)
-         *
-         * @returns {number}
-         */
-        bitWidth(): number {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * the purpose of the vector
-         *
-         * @returns {org.apache.arrow.flatbuf.VectorType}
-         */
-        type(): /*org.apache.arrow.flatbuf.*/VectorType {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? /** @type {org.apache.arrow.flatbuf.VectorType} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/VectorType.OFFSET;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startVectorLayout(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} bitWidth
-         */
-        static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
-            builder.addFieldInt16(0, bitWidth, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.VectorType} type
-         */
-        static addType(builder: flatbuffers.Builder, type: /*org.apache.arrow.flatbuf.*/VectorType) {
-            builder.addFieldInt16(1, type, /*org.apache.arrow.flatbuf.*/VectorType.OFFSET);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endVectorLayout(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * user defined key value pairs to add custom metadata to arrow
-     * key namespacing is the responsibility of the user
-     *
-     * @constructor
-     */
-    export class KeyValue {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {KeyValue}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): KeyValue {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {KeyValue=} obj
-         * @returns {KeyValue}
-         */
-        static getRootAsKeyValue(bb: flatbuffers.ByteBuffer, obj?: KeyValue): KeyValue {
-            return (obj || new KeyValue).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Encoding=} optionalEncoding
-         * @returns {string|Uint8Array|null}
-         */
-        key(): string | null;
-        key(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null;
-        key(optionalEncoding?: any): string | Uint8Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Encoding=} optionalEncoding
-         * @returns {string|Uint8Array|null}
-         */
-        value(): string | null;
-        value(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null;
-        value(optionalEncoding?: any): string | Uint8Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startKeyValue(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} keyOffset
-         */
-        static addKey(builder: flatbuffers.Builder, keyOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(0, keyOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} valueOffset
-         */
-        static addValue(builder: flatbuffers.Builder, valueOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, valueOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endKeyValue(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * Dictionary encoding metadata
-     *
-     * @constructor
-     */
-    export class DictionaryEncoding {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {DictionaryEncoding}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): DictionaryEncoding {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {DictionaryEncoding=} obj
-         * @returns {DictionaryEncoding}
-         */
-        static getRootAsDictionaryEncoding(bb: flatbuffers.ByteBuffer, obj?: DictionaryEncoding): DictionaryEncoding {
-            return (obj || new DictionaryEncoding).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * The known dictionary id in the application where this data is used. In
-         * the file or streaming formats, the dictionary ids are found in the
-         * DictionaryBatch messages
-         *
-         * @returns {flatbuffers.Long}
-         */
-        id(): flatbuffers.Long {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-        }
-
-        /**
-         * The dictionary indices are constrained to be positive integers. If this
-         * field is null, the indices must be signed int32
-         *
-         * @param {org.apache.arrow.flatbuf.Int=} obj
-         * @returns {org.apache.arrow.flatbuf.Int|null}
-         */
-        indexType(obj?: /*org.apache.arrow.flatbuf.*/Int): /*org.apache.arrow.flatbuf.*/Int | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Int).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-        }
-
-        /**
-         * By default, dictionaries are not ordered, or the order does not have
-         * semantic meaning. In some statistical, applications, dictionary-encoding
-         * is used to represent ordered categorical data, and we provide a way to
-         * preserve that metadata here
-         *
-         * @returns {boolean}
-         */
-        isOrdered(): boolean {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startDictionaryEncoding(builder: flatbuffers.Builder) {
-            builder.startObject(3);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} id
-         */
-        static addId(builder: flatbuffers.Builder, id: flatbuffers.Long) {
-            builder.addFieldInt64(0, id, builder.createLong(0, 0));
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} indexTypeOffset
-         */
-        static addIndexType(builder: flatbuffers.Builder, indexTypeOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, indexTypeOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {boolean} isOrdered
-         */
-        static addIsOrdered(builder: flatbuffers.Builder, isOrdered: boolean) {
-            builder.addFieldInt8(2, +isOrdered, +false);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endDictionaryEncoding(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * A field represents a named column in a record / row batch or child of a
-     * nested type.
-     *
-     * - children is only for nested Arrow arrays
-     * - For primitive types, children will have length 0
-     * - nullable should default to true in general
-     *
-     * @constructor
-     */
-    export class Field {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Field}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Field {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Field=} obj
-         * @returns {Field}
-         */
-        static getRootAsField(bb: flatbuffers.ByteBuffer, obj?: Field): Field {
-            return (obj || new Field).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * @param {flatbuffers.Encoding=} optionalEncoding
-         * @returns {string|Uint8Array|null}
-         */
-        name(): string | null;
-        name(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null;
-        name(optionalEncoding?: any): string | Uint8Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-        }
-
-        /**
-         * @returns {boolean}
-         */
-        nullable(): boolean {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-        }
-
-        /**
-         * @returns {org.apache.arrow.flatbuf.Type}
-         */
-        typeType(): /*org.apache.arrow.flatbuf.*/Type {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? /** @type {org.apache.arrow.flatbuf.Type} */ (this.bb.readUint8(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Type.NONE;
-        }
-
-        /**
-         * @param {flatbuffers.Table} obj
-         * @returns {?flatbuffers.Table}
-         */
-        type<T extends flatbuffers.Table>(obj: T): T | null {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
-        }
-
-        /**
-         * @param {org.apache.arrow.flatbuf.DictionaryEncoding=} obj
-         * @returns {org.apache.arrow.flatbuf.DictionaryEncoding|null}
-         */
-        dictionary(obj?: /*org.apache.arrow.flatbuf.*/DictionaryEncoding): /*org.apache.arrow.flatbuf.*/DictionaryEncoding | null {
-            let offset = this.bb.__offset(this.bb_pos, 12);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/DictionaryEncoding).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.Field=} obj
-         * @returns {org.apache.arrow.flatbuf.Field}
-         */
-        children(index: number, obj?: /*org.apache.arrow.flatbuf.*/Field): /*org.apache.arrow.flatbuf.*/Field | null {
-            let offset = this.bb.__offset(this.bb_pos, 14);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Field).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        childrenLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 14);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * layout of buffers produced for this type (as derived from the Type)
-         * does not include children
-         * each recordbatch will return instances of those Buffers.
-         *
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.VectorLayout=} obj
-         * @returns {org.apache.arrow.flatbuf.VectorLayout}
-         */
-        layout(index: number, obj?: /*org.apache.arrow.flatbuf.*/VectorLayout): /*org.apache.arrow.flatbuf.*/VectorLayout | null {
-            let offset = this.bb.__offset(this.bb_pos, 16);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/VectorLayout).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        layoutLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 16);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.KeyValue=} obj
-         * @returns {org.apache.arrow.flatbuf.KeyValue}
-         */
-        customMetadata(index: number, obj?: /*org.apache.arrow.flatbuf.*/KeyValue): /*org.apache.arrow.flatbuf.*/KeyValue | null {
-            let offset = this.bb.__offset(this.bb_pos, 18);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/KeyValue).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        customMetadataLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 18);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startField(builder: flatbuffers.Builder) {
-            builder.startObject(8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} nameOffset
-         */
-        static addName(builder: flatbuffers.Builder, nameOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(0, nameOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {boolean} nullable
-         */
-        static addNullable(builder: flatbuffers.Builder, nullable: boolean) {
-            builder.addFieldInt8(1, +nullable, +false);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.Type} typeType
-         */
-        static addTypeType(builder: flatbuffers.Builder, typeType: /*org.apache.arrow.flatbuf.*/Type) {
-            builder.addFieldInt8(2, typeType, /*org.apache.arrow.flatbuf.*/Type.NONE);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} typeOffset
-         */
-        static addType(builder: flatbuffers.Builder, typeOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(3, typeOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} dictionaryOffset
-         */
-        static addDictionary(builder: flatbuffers.Builder, dictionaryOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(4, dictionaryOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} childrenOffset
-         */
-        static addChildren(builder: flatbuffers.Builder, childrenOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(5, childrenOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createChildrenVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startChildrenVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} layoutOffset
-         */
-        static addLayout(builder: flatbuffers.Builder, layoutOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(6, layoutOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createLayoutVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startLayoutVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} customMetadataOffset
-         */
-        static addCustomMetadata(builder: flatbuffers.Builder, customMetadataOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(7, customMetadataOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createCustomMetadataVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startCustomMetadataVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endField(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * A Buffer represents a single contiguous memory segment
-     *
-     * @constructor
-     */
-    export class Buffer {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Buffer}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Buffer {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * The shared memory page id where this buffer is located. Currently this is
-         * not used
-         *
-         * @returns {number}
-         */
-        page(): number {
-            return this.bb.readInt32(this.bb_pos);
-        }
-
-        /**
-         * The relative offset into the shared memory page where the bytes for this
-         * buffer starts
-         *
-         * @returns {flatbuffers.Long}
-         */
-        offset(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos + 8);
-        }
-
-        /**
-         * The absolute length (in bytes) of the memory buffer. The memory is found
-         * from offset (inclusive) to offset + length (non-inclusive).
-         *
-         * @returns {flatbuffers.Long}
-         */
-        length(): flatbuffers.Long {
-            return this.bb.readInt64(this.bb_pos + 16);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} page
-         * @param {flatbuffers.Long} offset
-         * @param {flatbuffers.Long} length
-         * @returns {flatbuffers.Offset}
-         */
-        static createBuffer(builder: flatbuffers.Builder, page: number, offset: flatbuffers.Long, length: flatbuffers.Long): flatbuffers.Offset {
-            builder.prep(8, 24);
-            builder.writeInt64(length);
-            builder.writeInt64(offset);
-            builder.pad(4);
-            builder.writeInt32(page);
-            return builder.offset();
-        }
-
-    }
-    /**
-     * ----------------------------------------------------------------------
-     * A Schema describes the columns in a row batch
-     *
-     * @constructor
-     */
-    export class Schema {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
-
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Schema}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Schema {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Schema=} obj
-         * @returns {Schema}
-         */
-        static getRootAsSchema(bb: flatbuffers.ByteBuffer, obj?: Schema): Schema {
-            return (obj || new Schema).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * endianness of the buffer
-         * it is Little Endian by default
-         * if endianness doesn't match the underlying system then the vectors need to be converted
-         *
-         * @returns {org.apache.arrow.flatbuf.Endianness}
-         */
-        endianness(): /*org.apache.arrow.flatbuf.*/Endianness {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.Endianness} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Endianness.Little;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.Field=} obj
-         * @returns {org.apache.arrow.flatbuf.Field}
-         */
-        fields(index: number, obj?: /*org.apache.arrow.flatbuf.*/Field): /*org.apache.arrow.flatbuf.*/Field | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Field).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        fieldsLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.KeyValue=} obj
-         * @returns {org.apache.arrow.flatbuf.KeyValue}
-         */
-        customMetadata(index: number, obj?: /*org.apache.arrow.flatbuf.*/KeyValue): /*org.apache.arrow.flatbuf.*/KeyValue | null {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/KeyValue).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
-        }
-
-        /**
-         * @returns {number}
-         */
-        customMetadataLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startSchema(builder: flatbuffers.Builder) {
-            builder.startObject(3);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.Endianness} endianness
-         */
-        static addEndianness(builder: flatbuffers.Builder, endianness: /*org.apache.arrow.flatbuf.*/Endianness) {
-            builder.addFieldInt16(0, endianness, /*org.apache.arrow.flatbuf.*/Endianness.Little);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} fieldsOffset
-         */
-        static addFields(builder: flatbuffers.Builder, fieldsOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, fieldsOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createFieldsVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startFieldsVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} customMetadataOffset
-         */
-        static addCustomMetadata(builder: flatbuffers.Builder, customMetadataOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(2, customMetadataOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createCustomMetadataVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startCustomMetadataVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endSchema(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} offset
-         */
-        static finishSchemaBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
-            builder.finish(offset);
-        }
-
-    }
+    timezone(): string | null
+    timezone(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null
+    timezone(optionalEncoding?: any): string | Uint8Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+    };
 
     /**
-     * Shape data for a single axis in a tensor
-     *
-     * @constructor
+     * @param {flatbuffers.Builder} builder
      */
-    export class TensorDim {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
+    static startTimestamp(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
 
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {TensorDim}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): TensorDim {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
-        }
-
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {TensorDim=} obj
-         * @returns {TensorDim}
-         */
-        static getRootAsTensorDim(bb: flatbuffers.ByteBuffer, obj?: TensorDim): TensorDim {
-            return (obj || new TensorDim).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-        }
-
-        /**
-         * Length of dimension
-         *
-         * @returns {flatbuffers.Long}
-         */
-        size(): flatbuffers.Long {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
-        }
-
-        /**
-         * Name of the dimension, optional
-         *
-         * @param {flatbuffers.Encoding=} optionalEncoding
-         * @returns {string|Uint8Array|null}
-         */
-        name(): string | null;
-        name(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null;
-        name(optionalEncoding?: any): string | Uint8Array | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startTensorDim(builder: flatbuffers.Builder) {
-            builder.startObject(2);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Long} size
-         */
-        static addSize(builder: flatbuffers.Builder, size: flatbuffers.Long) {
-            builder.addFieldInt64(0, size, builder.createLong(0, 0));
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} nameOffset
-         */
-        static addName(builder: flatbuffers.Builder, nameOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, nameOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endTensorDim(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-    }
     /**
-     * @constructor
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.TimeUnit} unit
      */
-    export class Tensor {
-        /**
-         * @type {flatbuffers.ByteBuffer}
-         */
-        bb: flatbuffers.ByteBuffer;
+    static addUnit(builder: flatbuffers.Builder, unit:/*org.apache.arrow.flatbuf.*/TimeUnit) {
+        builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/TimeUnit.SECOND);
+    };
 
-        /**
-         * @type {number}
-         */
-        bb_pos: number = 0;
-        /**
-         * @param {number} i
-         * @param {flatbuffers.ByteBuffer} bb
-         * @returns {Tensor}
-         */
-        __init(i: number, bb: flatbuffers.ByteBuffer): Tensor {
-            this.bb_pos = i;
-            this.bb = bb;
-            return this;
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} timezoneOffset
+     */
+    static addTimezone(builder: flatbuffers.Builder, timezoneOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, timezoneOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endTimestamp(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Interval {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Interval}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Interval {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Interval=} obj
+     * @returns {Interval}
+     */
+    static getRootAsInterval(bb: flatbuffers.ByteBuffer, obj?: Interval): Interval {
+        return (obj || new Interval).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.IntervalUnit}
+     */
+    unit():/*org.apache.arrow.flatbuf.*/IntervalUnit {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.IntervalUnit} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/IntervalUnit.YEAR_MONTH;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startInterval(builder: flatbuffers.Builder) {
+        builder.startObject(1);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.IntervalUnit} unit
+     */
+    static addUnit(builder: flatbuffers.Builder, unit:/*org.apache.arrow.flatbuf.*/IntervalUnit) {
+        builder.addFieldInt16(0, unit, /*org.apache.arrow.flatbuf.*/IntervalUnit.YEAR_MONTH);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endInterval(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * represents the physical layout of a buffer
+ * buffers have fixed width slots of a given type
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class VectorLayout {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {VectorLayout}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): VectorLayout {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {VectorLayout=} obj
+     * @returns {VectorLayout}
+     */
+    static getRootAsVectorLayout(bb: flatbuffers.ByteBuffer, obj?: VectorLayout): VectorLayout {
+        return (obj || new VectorLayout).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * the width of a slot in the buffer (typically 1, 8, 16, 32 or 64)
+     *
+     * @returns {number}
+     */
+    bitWidth(): number {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt16(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * the purpose of the vector
+     *
+     * @returns {org.apache.arrow.flatbuf.VectorType}
+     */
+    type():/*org.apache.arrow.flatbuf.*/VectorType {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? /** @type {org.apache.arrow.flatbuf.VectorType} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/VectorType.OFFSET;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startVectorLayout(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} bitWidth
+     */
+    static addBitWidth(builder: flatbuffers.Builder, bitWidth: number) {
+        builder.addFieldInt16(0, bitWidth, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.VectorType} type
+     */
+    static addType(builder: flatbuffers.Builder, type:/*org.apache.arrow.flatbuf.*/VectorType) {
+        builder.addFieldInt16(1, type, /*org.apache.arrow.flatbuf.*/VectorType.OFFSET);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endVectorLayout(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * user defined key value pairs to add custom metadata to arrow
+ * key namespacing is the responsibility of the user
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class KeyValue {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {KeyValue}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): KeyValue {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {KeyValue=} obj
+     * @returns {KeyValue}
+     */
+    static getRootAsKeyValue(bb: flatbuffers.ByteBuffer, obj?: KeyValue): KeyValue {
+        return (obj || new KeyValue).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Encoding=} optionalEncoding
+     * @returns {string|Uint8Array|null}
+     */
+    key(): string | null
+    key(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null
+    key(optionalEncoding?: any): string | Uint8Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Encoding=} optionalEncoding
+     * @returns {string|Uint8Array|null}
+     */
+    value(): string | null
+    value(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null
+    value(optionalEncoding?: any): string | Uint8Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startKeyValue(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} keyOffset
+     */
+    static addKey(builder: flatbuffers.Builder, keyOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(0, keyOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} valueOffset
+     */
+    static addValue(builder: flatbuffers.Builder, valueOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, valueOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endKeyValue(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * Dictionary encoding metadata
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class DictionaryEncoding {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {DictionaryEncoding}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): DictionaryEncoding {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {DictionaryEncoding=} obj
+     * @returns {DictionaryEncoding}
+     */
+    static getRootAsDictionaryEncoding(bb: flatbuffers.ByteBuffer, obj?: DictionaryEncoding): DictionaryEncoding {
+        return (obj || new DictionaryEncoding).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * The known dictionary id in the application where this data is used. In
+     * the file or streaming formats, the dictionary ids are found in the
+     * DictionaryBatch messages
+     *
+     * @returns {flatbuffers.Long}
+     */
+    id(): flatbuffers.Long {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+    };
+
+    /**
+     * The dictionary indices are constrained to be positive integers. If this
+     * field is null, the indices must be signed int32
+     *
+     * @param {org.apache.arrow.flatbuf.Int=} obj
+     * @returns {org.apache.arrow.flatbuf.Int|null}
+     */
+    indexType(obj?:/*org.apache.arrow.flatbuf.*/Int):/*org.apache.arrow.flatbuf.*/Int | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Int).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+    };
+
+    /**
+     * By default, dictionaries are not ordered, or the order does not have
+     * semantic meaning. In some statistical, applications, dictionary-encoding
+     * is used to represent ordered categorical data, and we provide a way to
+     * preserve that metadata here
+     *
+     * @returns {boolean}
+     */
+    isOrdered(): boolean {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startDictionaryEncoding(builder: flatbuffers.Builder) {
+        builder.startObject(3);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} id
+     */
+    static addId(builder: flatbuffers.Builder, id: flatbuffers.Long) {
+        builder.addFieldInt64(0, id, builder.createLong(0, 0));
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} indexTypeOffset
+     */
+    static addIndexType(builder: flatbuffers.Builder, indexTypeOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, indexTypeOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {boolean} isOrdered
+     */
+    static addIsOrdered(builder: flatbuffers.Builder, isOrdered: boolean) {
+        builder.addFieldInt8(2, +isOrdered, +false);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endDictionaryEncoding(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * A field represents a named column in a record / row batch or child of a
+ * nested type.
+ *
+ * - children is only for nested Arrow arrays
+ * - For primitive types, children will have length 0
+ * - nullable should default to true in general
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Field {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Field}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Field {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Field=} obj
+     * @returns {Field}
+     */
+    static getRootAsField(bb: flatbuffers.ByteBuffer, obj?: Field): Field {
+        return (obj || new Field).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @param {flatbuffers.Encoding=} optionalEncoding
+     * @returns {string|Uint8Array|null}
+     */
+    name(): string | null
+    name(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null
+    name(optionalEncoding?: any): string | Uint8Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+    };
+
+    /**
+     * @returns {boolean}
+     */
+    nullable(): boolean {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.Type}
+     */
+    typeType():/*org.apache.arrow.flatbuf.*/Type {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? /** @type {org.apache.arrow.flatbuf.Type} */ (this.bb.readUint8(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Type.NONE;
+    };
+
+    /**
+     * @param {flatbuffers.Table} obj
+     * @returns {?flatbuffers.Table}
+     */
+    type<T extends flatbuffers.Table>(obj: T): T | null {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
+    };
+
+    /**
+     * @param {org.apache.arrow.flatbuf.DictionaryEncoding=} obj
+     * @returns {org.apache.arrow.flatbuf.DictionaryEncoding|null}
+     */
+    dictionary(obj?:/*org.apache.arrow.flatbuf.*/DictionaryEncoding):/*org.apache.arrow.flatbuf.*/DictionaryEncoding | null {
+        var offset = this.bb.__offset(this.bb_pos, 12);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/DictionaryEncoding).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.Field=} obj
+     * @returns {org.apache.arrow.flatbuf.Field}
+     */
+    children(index: number, obj?:/*org.apache.arrow.flatbuf.*/Field):/*org.apache.arrow.flatbuf.*/Field | null {
+        var offset = this.bb.__offset(this.bb_pos, 14);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Field).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    childrenLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 14);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * layout of buffers produced for this type (as derived from the Type)
+     * does not include children
+     * each recordbatch will return instances of those Buffers.
+     *
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.VectorLayout=} obj
+     * @returns {org.apache.arrow.flatbuf.VectorLayout}
+     */
+    layout(index: number, obj?:/*org.apache.arrow.flatbuf.*/VectorLayout):/*org.apache.arrow.flatbuf.*/VectorLayout | null {
+        var offset = this.bb.__offset(this.bb_pos, 16);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/VectorLayout).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    layoutLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 16);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.KeyValue=} obj
+     * @returns {org.apache.arrow.flatbuf.KeyValue}
+     */
+    customMetadata(index: number, obj?:/*org.apache.arrow.flatbuf.*/KeyValue):/*org.apache.arrow.flatbuf.*/KeyValue | null {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/KeyValue).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    customMetadataLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 18);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startField(builder: flatbuffers.Builder) {
+        builder.startObject(8);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} nameOffset
+     */
+    static addName(builder: flatbuffers.Builder, nameOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(0, nameOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {boolean} nullable
+     */
+    static addNullable(builder: flatbuffers.Builder, nullable: boolean) {
+        builder.addFieldInt8(1, +nullable, +false);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.Type} typeType
+     */
+    static addTypeType(builder: flatbuffers.Builder, typeType:/*org.apache.arrow.flatbuf.*/Type) {
+        builder.addFieldInt8(2, typeType, /*org.apache.arrow.flatbuf.*/Type.NONE);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} typeOffset
+     */
+    static addType(builder: flatbuffers.Builder, typeOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(3, typeOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} dictionaryOffset
+     */
+    static addDictionary(builder: flatbuffers.Builder, dictionaryOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(4, dictionaryOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} childrenOffset
+     */
+    static addChildren(builder: flatbuffers.Builder, childrenOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(5, childrenOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createChildrenVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * @param {flatbuffers.ByteBuffer} bb
-         * @param {Tensor=} obj
-         * @returns {Tensor}
-         */
-        static getRootAsTensor(bb: flatbuffers.ByteBuffer, obj?: Tensor): Tensor {
-            return (obj || new Tensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startChildrenVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} layoutOffset
+     */
+    static addLayout(builder: flatbuffers.Builder, layoutOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(6, layoutOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createLayoutVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * @returns {org.apache.arrow.flatbuf.Type}
-         */
-        typeType(): /*org.apache.arrow.flatbuf.*/Type {
-            let offset = this.bb.__offset(this.bb_pos, 4);
-            return offset ? /** @type {org.apache.arrow.flatbuf.Type} */ (this.bb.readUint8(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Type.NONE;
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startLayoutVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} customMetadataOffset
+     */
+    static addCustomMetadata(builder: flatbuffers.Builder, customMetadataOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(7, customMetadataOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createCustomMetadataVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * The type of data contained in a value cell. Currently only fixed-width
-         * value types are supported, no strings or nested types
-         *
-         * @param {flatbuffers.Table} obj
-         * @returns {?flatbuffers.Table}
-         */
-        type<T extends flatbuffers.Table>(obj: T): T | null {
-            let offset = this.bb.__offset(this.bb_pos, 6);
-            return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startCustomMetadataVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endField(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * A Buffer represents a single contiguous memory segment
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Buffer {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Buffer}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Buffer {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * The shared memory page id where this buffer is located. Currently this is
+     * not used
+     *
+     * @returns {number}
+     */
+    page(): number {
+        return this.bb.readInt32(this.bb_pos);
+    };
+
+    /**
+     * The relative offset into the shared memory page where the bytes for this
+     * buffer starts
+     *
+     * @returns {flatbuffers.Long}
+     */
+    offset(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos + 8);
+    };
+
+    /**
+     * The absolute length (in bytes) of the memory buffer. The memory is found
+     * from offset (inclusive) to offset + length (non-inclusive).
+     *
+     * @returns {flatbuffers.Long}
+     */
+    length(): flatbuffers.Long {
+        return this.bb.readInt64(this.bb_pos + 16);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} page
+     * @param {flatbuffers.Long} offset
+     * @param {flatbuffers.Long} length
+     * @returns {flatbuffers.Offset}
+     */
+    static createBuffer(builder: flatbuffers.Builder, page: number, offset: flatbuffers.Long, length: flatbuffers.Long): flatbuffers.Offset {
+        builder.prep(8, 24);
+        builder.writeInt64(length);
+        builder.writeInt64(offset);
+        builder.pad(4);
+        builder.writeInt32(page);
+        return builder.offset();
+    };
+
+}
+// }
+/**
+ * ----------------------------------------------------------------------
+ * A Schema describes the columns in a row batch
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Schema {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Schema}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Schema {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Schema=} obj
+     * @returns {Schema}
+     */
+    static getRootAsSchema(bb: flatbuffers.ByteBuffer, obj?: Schema): Schema {
+        return (obj || new Schema).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * endianness of the buffer
+     * it is Little Endian by default
+     * if endianness doesn't match the underlying system then the vectors need to be converted
+     *
+     * @returns {org.apache.arrow.flatbuf.Endianness}
+     */
+    endianness():/*org.apache.arrow.flatbuf.*/Endianness {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.Endianness} */ (this.bb.readInt16(this.bb_pos + offset)) : /*org.apache.arrow.flatbuf.*/Endianness.Little;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.Field=} obj
+     * @returns {org.apache.arrow.flatbuf.Field}
+     */
+    fields(index: number, obj?:/*org.apache.arrow.flatbuf.*/Field):/*org.apache.arrow.flatbuf.*/Field | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Field).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    fieldsLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.KeyValue=} obj
+     * @returns {org.apache.arrow.flatbuf.KeyValue}
+     */
+    customMetadata(index: number, obj?:/*org.apache.arrow.flatbuf.*/KeyValue):/*org.apache.arrow.flatbuf.*/KeyValue | null {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/KeyValue).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    customMetadataLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startSchema(builder: flatbuffers.Builder) {
+        builder.startObject(3);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.Endianness} endianness
+     */
+    static addEndianness(builder: flatbuffers.Builder, endianness:/*org.apache.arrow.flatbuf.*/Endianness) {
+        builder.addFieldInt16(0, endianness, /*org.apache.arrow.flatbuf.*/Endianness.Little);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} fieldsOffset
+     */
+    static addFields(builder: flatbuffers.Builder, fieldsOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, fieldsOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createFieldsVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * The dimensions of the tensor, optionally named
-         *
-         * @param {number} index
-         * @param {org.apache.arrow.flatbuf.TensorDim=} obj
-         * @returns {org.apache.arrow.flatbuf.TensorDim}
-         */
-        shape(index: number, obj?: /*org.apache.arrow.flatbuf.*/TensorDim): /*org.apache.arrow.flatbuf.*/TensorDim | null {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/TensorDim).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startFieldsVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} customMetadataOffset
+     */
+    static addCustomMetadata(builder: flatbuffers.Builder, customMetadataOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(2, customMetadataOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createCustomMetadataVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * @returns {number}
-         */
-        shapeLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 8);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startCustomMetadataVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endSchema(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} offset
+     */
+    static finishSchemaBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
+        builder.finish(offset);
+    };
+
+}
+// }
+
+// automatically generated by the FlatBuffers compiler, do not modify
+
+/**
+ * Shape data for a single axis in a tensor
+ *
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class TensorDim {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {TensorDim}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): TensorDim {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {TensorDim=} obj
+     * @returns {TensorDim}
+     */
+    static getRootAsTensorDim(bb: flatbuffers.ByteBuffer, obj?: TensorDim): TensorDim {
+        return (obj || new TensorDim).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * Length of dimension
+     *
+     * @returns {flatbuffers.Long}
+     */
+    size(): flatbuffers.Long {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? this.bb.readInt64(this.bb_pos + offset) : this.bb.createLong(0, 0);
+    };
+
+    /**
+     * Name of the dimension, optional
+     *
+     * @param {flatbuffers.Encoding=} optionalEncoding
+     * @returns {string|Uint8Array|null}
+     */
+    name(): string | null
+    name(optionalEncoding: flatbuffers.Encoding): string | Uint8Array | null
+    name(optionalEncoding?: any): string | Uint8Array | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startTensorDim(builder: flatbuffers.Builder) {
+        builder.startObject(2);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Long} size
+     */
+    static addSize(builder: flatbuffers.Builder, size: flatbuffers.Long) {
+        builder.addFieldInt64(0, size, builder.createLong(0, 0));
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} nameOffset
+     */
+    static addName(builder: flatbuffers.Builder, nameOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, nameOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endTensorDim(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
+
+}
+// }
+/**
+ * @constructor
+ */
+// export namespace org.apache.arrow.flatbuf{
+export class Tensor {
+    /**
+     * @type {flatbuffers.ByteBuffer}
+     */
+    bb: flatbuffers.ByteBuffer;
+
+    /**
+     * @type {number}
+     */
+    bb_pos: number = 0;
+    /**
+     * @param {number} i
+     * @param {flatbuffers.ByteBuffer} bb
+     * @returns {Tensor}
+     */
+    __init(i: number, bb: flatbuffers.ByteBuffer): Tensor {
+        this.bb_pos = i;
+        this.bb = bb;
+        return this;
+    };
+
+    /**
+     * @param {flatbuffers.ByteBuffer} bb
+     * @param {Tensor=} obj
+     * @returns {Tensor}
+     */
+    static getRootAsTensor(bb: flatbuffers.ByteBuffer, obj?: Tensor): Tensor {
+        return (obj || new Tensor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+    };
+
+    /**
+     * @returns {org.apache.arrow.flatbuf.Type}
+     */
+    typeType():/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Type {
+        var offset = this.bb.__offset(this.bb_pos, 4);
+        return offset ? /** @type {org.apache.arrow.flatbuf.Type} */ (this.bb.readUint8(this.bb_pos + offset)) : /*NS16187549871986683199.org.apache.arrow.flatbuf.*/Type.NONE;
+    };
+
+    /**
+     * The type of data contained in a value cell. Currently only fixed-width
+     * value types are supported, no strings or nested types
+     *
+     * @param {flatbuffers.Table} obj
+     * @returns {?flatbuffers.Table}
+     */
+    type<T extends flatbuffers.Table>(obj: T): T | null {
+        var offset = this.bb.__offset(this.bb_pos, 6);
+        return offset ? this.bb.__union(obj, this.bb_pos + offset) : null;
+    };
+
+    /**
+     * The dimensions of the tensor, optionally named
+     *
+     * @param {number} index
+     * @param {org.apache.arrow.flatbuf.TensorDim=} obj
+     * @returns {org.apache.arrow.flatbuf.TensorDim}
+     */
+    shape(index: number, obj?:/*org.apache.arrow.flatbuf.*/TensorDim):/*org.apache.arrow.flatbuf.*/TensorDim | null {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? (obj || new /*org.apache.arrow.flatbuf.*/TensorDim).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+    };
+
+    /**
+     * @returns {number}
+     */
+    shapeLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 8);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * Non-negative byte offsets to advance one value cell along each dimension
+     *
+     * @param {number} index
+     * @returns {flatbuffers.Long}
+     */
+    strides(index: number): flatbuffers.Long | null {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.readInt64(this.bb.__vector(this.bb_pos + offset) + index * 8) : this.bb.createLong(0, 0);
+    };
+
+    /**
+     * @returns {number}
+     */
+    stridesLength(): number {
+        var offset = this.bb.__offset(this.bb_pos, 10);
+        return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+    };
+
+    /**
+     * The location and size of the tensor's data
+     *
+     * @param {org.apache.arrow.flatbuf.Buffer=} obj
+     * @returns {org.apache.arrow.flatbuf.Buffer|null}
+     */
+    data(obj?:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer):/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer | null {
+        var offset = this.bb.__offset(this.bb_pos, 12);
+        return offset ? (obj || new /*NS16187549871986683199.org.apache.arrow.flatbuf.*/Buffer).__init(this.bb_pos + offset, this.bb) : null;
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     */
+    static startTensor(builder: flatbuffers.Builder) {
+        builder.startObject(5);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {org.apache.arrow.flatbuf.Type} typeType
+     */
+    static addTypeType(builder: flatbuffers.Builder, typeType:/*NS16187549871986683199.org.apache.arrow.flatbuf.*/Type) {
+        builder.addFieldInt8(0, typeType, /*NS16187549871986683199.org.apache.arrow.flatbuf.*/Type.NONE);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} typeOffset
+     */
+    static addType(builder: flatbuffers.Builder, typeOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(1, typeOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} shapeOffset
+     */
+    static addShape(builder: flatbuffers.Builder, shapeOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(2, shapeOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Offset>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createShapeVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
+        builder.startVector(4, data.length, 4);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addOffset(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * Non-negative byte offsets to advance one value cell along each dimension
-         *
-         * @param {number} index
-         * @returns {flatbuffers.Long}
-         */
-        strides(index: number): flatbuffers.Long | null {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? this.bb.readInt64(this.bb.__vector(this.bb_pos + offset) + index * 8) : this.bb.createLong(0, 0);
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startShapeVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(4, numElems, 4);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} stridesOffset
+     */
+    static addStrides(builder: flatbuffers.Builder, stridesOffset: flatbuffers.Offset) {
+        builder.addFieldOffset(3, stridesOffset, 0);
+    };
+
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {Array.<flatbuffers.Long>} data
+     * @returns {flatbuffers.Offset}
+     */
+    static createStridesVector(builder: flatbuffers.Builder, data: flatbuffers.Long[]): flatbuffers.Offset {
+        builder.startVector(8, data.length, 8);
+        for (var i = data.length - 1; i >= 0; i--) {
+            builder.addInt64(data[i]);
         }
+        return builder.endVector();
+    };
 
-        /**
-         * @returns {number}
-         */
-        stridesLength(): number {
-            let offset = this.bb.__offset(this.bb_pos, 10);
-            return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
-        }
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {number} numElems
+     */
+    static startStridesVector(builder: flatbuffers.Builder, numElems: number) {
+        builder.startVector(8, numElems, 8);
+    };
 
-        /**
-         * The location and size of the tensor's data
-         *
-         * @param {org.apache.arrow.flatbuf.Buffer=} obj
-         * @returns {org.apache.arrow.flatbuf.Buffer|null}
-         */
-        data(obj?: /*org.apache.arrow.flatbuf.*/Buffer): /*org.apache.arrow.flatbuf.*/Buffer | null {
-            let offset = this.bb.__offset(this.bb_pos, 12);
-            return offset ? (obj || new /*org.apache.arrow.flatbuf.*/Buffer).__init(this.bb_pos + offset, this.bb) : null;
-        }
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} dataOffset
+     */
+    static addData(builder: flatbuffers.Builder, dataOffset: flatbuffers.Offset) {
+        builder.addFieldStruct(4, dataOffset, 0);
+    };
 
-        /**
-         * @param {flatbuffers.Builder} builder
-         */
-        static startTensor(builder: flatbuffers.Builder) {
-            builder.startObject(5);
-        }
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @returns {flatbuffers.Offset}
+     */
+    static endTensor(builder: flatbuffers.Builder): flatbuffers.Offset {
+        var offset = builder.endObject();
+        return offset;
+    };
 
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {org.apache.arrow.flatbuf.Type} typeType
-         */
-        static addTypeType(builder: flatbuffers.Builder, typeType: /*org.apache.arrow.flatbuf.*/Type) {
-            builder.addFieldInt8(0, typeType, /*org.apache.arrow.flatbuf.*/Type.NONE);
-        }
+    /**
+     * @param {flatbuffers.Builder} builder
+     * @param {flatbuffers.Offset} offset
+     */
+    static finishTensorBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
+        builder.finish(offset);
+    };
 
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} typeOffset
-         */
-        static addType(builder: flatbuffers.Builder, typeOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(1, typeOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} shapeOffset
-         */
-        static addShape(builder: flatbuffers.Builder, shapeOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(2, shapeOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Offset>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createShapeVector(builder: flatbuffers.Builder, data: flatbuffers.Offset[]): flatbuffers.Offset {
-            builder.startVector(4, data.length, 4);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addOffset(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startShapeVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(4, numElems, 4);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} stridesOffset
-         */
-        static addStrides(builder: flatbuffers.Builder, stridesOffset: flatbuffers.Offset) {
-            builder.addFieldOffset(3, stridesOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {Array.<flatbuffers.Long>} data
-         * @returns {flatbuffers.Offset}
-         */
-        static createStridesVector(builder: flatbuffers.Builder, data: flatbuffers.Long[]): flatbuffers.Offset {
-            builder.startVector(8, data.length, 8);
-            for (let i = data.length - 1; i >= 0; i--) {
-                builder.addInt64(data[i]);
-            }
-            return builder.endVector();
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {number} numElems
-         */
-        static startStridesVector(builder: flatbuffers.Builder, numElems: number) {
-            builder.startVector(8, numElems, 8);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} dataOffset
-         */
-        static addData(builder: flatbuffers.Builder, dataOffset: flatbuffers.Offset) {
-            builder.addFieldStruct(4, dataOffset, 0);
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @returns {flatbuffers.Offset}
-         */
-        static endTensor(builder: flatbuffers.Builder): flatbuffers.Offset {
-            let offset = builder.endObject();
-            return offset;
-        }
-
-        /**
-         * @param {flatbuffers.Builder} builder
-         * @param {flatbuffers.Offset} offset
-         */
-        static finishTensorBuffer(builder: flatbuffers.Builder, offset: flatbuffers.Offset) {
-            builder.finish(offset);
-        }
-
-    }
-
+}
 // }
