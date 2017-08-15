@@ -2,7 +2,6 @@ import { Observable } from 'rxjs';
 import { RefCounted } from './open';
 import { Client as MapD } from '../mapd';
 import $$observable from 'symbol-observable';
-import { ArrowReader } from '../apache/arrow';
 import { bindObservableMethods } from './bind';
 
 export type ClientStatics = {

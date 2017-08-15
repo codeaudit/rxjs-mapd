@@ -2,7 +2,6 @@ import { Observable } from 'rxjs';
 import { Client } from './client';
 import * as shm from 'shm-typed-array';
 import { TQueryResult, TDeviceType, TDataFrame } from '../mapd';
-import { ArrowReader, getReader as toArrow } from '../apache/arrow';
 
 export function queryStatic(this: typeof Client, query: string, limit = -1) {
     return this.mapd_sqlExecute(query, true, `${this.nonce++}`, Math.max(-1, limit));
@@ -14,7 +13,7 @@ export function queryDFStatic(this: typeof Client, query: string, limit = -1, de
     return (this.gpus <= 0
         ? this.mapd_sqlExecuteDf(query, TDeviceType.CPU, 0, _limit).map(sharedMemoryAttach)
         : this.mapd_sqlExecuteDf(query, TDeviceType.GPU, _deviceId, _limit).map(cudaMemoryAttach)
-    ).map(toArrow) as Client<ArrowReader>;
+    ) as Client<Buffer[]>;
 }
 
 export function queryProto(this: Client<typeof Client>, query: string, limit = -1) {
@@ -22,9 +21,19 @@ export function queryProto(this: Client<typeof Client>, query: string, limit = -
 }
 
 export function queryDFProto(this: Client<typeof Client>, query: string, limit = -1, deviceId = 0) {
-    return this.flatMap((client) => client.queryDF(query, limit, deviceId)) as Client<ArrowReader>;
+    return this.flatMap((client) => client.queryDF(query, limit, deviceId)) as Client<Buffer[]>;
 }
 
+function sharedMemoryAttach(df: TDataFrame): Buffer[] {
+    const sm_size = +df.sm_size - 4, df_size = +df.df_size;
+    const sm_handle = (<any> df.sm_handle).readUInt32LE(0);
+    const df_handle = (<any> df.df_handle).readUInt32LE(0);
+    const sm_buffer: Buffer = shm.get(sm_handle, 'Buffer');
+    const df_buffer: Buffer = shm.get(df_handle, 'Buffer');
+    return [sm_buffer, df_buffer];
+}
+
+/*
 function sharedMemoryAttach(df: TDataFrame): Buffer {
     // todo: why does mapd add an extra 4 bytes to sm_size?
     const sm_size = +df.sm_size - 4, df_size = +df.df_size;
@@ -46,7 +55,8 @@ function sharedMemoryAttach(df: TDataFrame): Buffer {
     shm.detach(df_handle, false);
     return arrow_buf;
 }
+*/
 
-function cudaMemoryAttach(df: TDataFrame): Buffer {
+function cudaMemoryAttach(df: TDataFrame): Buffer[] {
     throw new Error('todo: implement node-cuda IPC');
 }
