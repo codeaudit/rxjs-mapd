@@ -8,6 +8,16 @@
 
 
 
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/graphistry/rxjs-mapd/compare/v1.1.0...v1.2.0) (2017-08-15)
+
+
+### Features
+
+* **arrow:** remove embedded arrow reader for apache-arrow module ([7ff2ff9](https://github.com/graphistry/rxjs-mapd/commit/7ff2ff9))
+
+
+
 <a name="1.1.0"></a>
 # [1.1.0](https://github.com/graphistry/rxjs-mapd/compare/v1.0.2...v1.1.0) (2017-07-05)
 
